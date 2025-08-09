@@ -10,6 +10,8 @@ import ManageHomeworkScreen from "@/app/ManageHomeworkScreen";
 import AddHomeworkScreen from "@/app/AddHomeworkScreen";
 import ManageResultsClassesITaughtScreen from "@/app/ManageResultsClassesITaughtScreen";
 import StudentsMarksEntryScreen from "@/app/StudentsMarksEntryScreen";
+import MyClassStudentsReportsScreen from "@/app/MyClassStudentsReportsScreen";
+import TermExamResultsReleaseScreen from "@/app/TermExamResultsReleaseScreen";
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -64,6 +66,14 @@ export default function RootLayout() {
                 />
                 <Stack.Screen
                     name="StudentsMarksEntryScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="MyClassStudentsReportsScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="TermExamResultsReleaseScreen"
                     options={{ headerShown: false }}
                 />
             </Stack>
