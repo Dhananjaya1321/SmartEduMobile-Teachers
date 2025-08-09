@@ -8,7 +8,6 @@ import ScrollView = Animated.ScrollView;
 const features = [
     { label: 'My Class Students', image: require('@/assets/images/students.png') },
     { label: 'Students I Teach', image: require('@/assets/images/studenWithTeacher.png') },
-    { label: 'Add New Student ', image: require('@/assets/images/singleStudent.png') },
 ];
 
 function formatData(data: any[], numColumns: number) {
@@ -22,8 +21,7 @@ function formatData(data: any[], numColumns: number) {
     return data;
 }
 
-
-export default function ManageStudentsScreen() {
+export default function ManageResultsScreen() {
     const navigation = useNavigation();
     return (
         <ScrollView style={styles.container}>
@@ -32,7 +30,7 @@ export default function ManageStudentsScreen() {
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Manage Students</Text>
+                <Text style={styles.headerTitle}>Manage Results</Text>
                 <Ionicons name="notifications-outline" size={24} color="black" />
             </View>
 
@@ -54,6 +52,7 @@ export default function ManageStudentsScreen() {
                     );
                 }}
             />
+
         </ScrollView>
     );
 }

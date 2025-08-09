@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import ManageResultsScreen from "@/app/ManageResultsScreen";
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -35,6 +36,10 @@ export default function RootLayout() {
                 />
                 <Stack.Screen
                     name="ManageExamsScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="ManageResultsScreen"
                     options={{ headerShown: false }}
                 />
             </Stack>

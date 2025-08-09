@@ -5,28 +5,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {useNavigation} from "expo-router";
 import ScrollView = Animated.ScrollView;
 
-const features = [
-    { label: 'My Class Students', image: require('@/assets/images/students.png') },
-    { label: 'Students I Teach', image: require('@/assets/images/studenWithTeacher.png') },
-    { label: 'Add New Student ', image: require('@/assets/images/singleStudent.png') },
-];
-
-function formatData(data: any[], numColumns: number) {
-    const numberOfFullRows = Math.floor(data.length / numColumns);
-    let numberOfElementsLastRow = data.length - numberOfFullRows * numColumns;
-
-    while (numberOfElementsLastRow !== 0 && numberOfElementsLastRow !== numColumns) {
-        data.push({ label: `blank-${numberOfElementsLastRow}`, empty: true });
-        numberOfElementsLastRow++;
-    }
-    return data;
-}
-
-type RootStackParamList = {
-    Home: undefined;
-    Attendance: undefined;
-};
-
 
 export default function ManageExamsScreen() {
     const navigation = useNavigation();
