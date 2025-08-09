@@ -81,6 +81,10 @@ export default function RootLayout() {
                     name="StudentsReportScreen"
                     options={{ headerShown: false }}
                 />
+                <Stack.Screen
+                    name="StudentFullReportScreen"
+                    options={{ headerShown: false }}
+                />
             </Stack>
             <StatusBar style="auto" />
         </ThemeProvider>
