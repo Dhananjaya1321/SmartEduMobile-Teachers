@@ -12,6 +12,7 @@ import ManageResultsClassesITaughtScreen from "@/app/ManageResultsClassesITaught
 import StudentsMarksEntryScreen from "@/app/StudentsMarksEntryScreen";
 import MyClassStudentsReportsScreen from "@/app/MyClassStudentsReportsScreen";
 import TermExamResultsReleaseScreen from "@/app/TermExamResultsReleaseScreen";
+import StudentsReportScreen from "@/app/StudentsReportScreen";
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -74,6 +75,10 @@ export default function RootLayout() {
                 />
                 <Stack.Screen
                     name="TermExamResultsReleaseScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="StudentsReportScreen"
                     options={{ headerShown: false }}
                 />
             </Stack>

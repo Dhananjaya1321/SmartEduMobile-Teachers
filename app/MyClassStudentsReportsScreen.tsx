@@ -3,6 +3,7 @@ import {View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, A
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import ScrollView = Animated.ScrollView;
+import StudentsReportScreen from "@/app/StudentsReportScreen";
 
 export default function MyClassStudentsReportsScreen() {
     const router = useRouter();
@@ -58,7 +59,7 @@ export default function MyClassStudentsReportsScreen() {
     const handleReportReleaseAndStudentReport = (item) => {
         if (item.released){
             router.push({
-                pathname: '/StudentsMarksEntryScreen',
+                pathname: '/StudentsReportScreen',
                 params: { title: item.title},
             });
         }else {
