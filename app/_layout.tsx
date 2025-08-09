@@ -6,6 +6,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import AttendanceScreen from '@/app/AttendanceScreen';
+import TimetableScreen from "@/app/TimetableScreen";
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -24,6 +25,10 @@ export default function RootLayout() {
                 <Stack.Screen name="+not-found" />
                 <Stack.Screen
                     name="AttendanceScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="TimetableScreen"
                     options={{ headerShown: false }}
                 />
             </Stack>

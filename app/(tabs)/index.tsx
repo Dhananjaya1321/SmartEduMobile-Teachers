@@ -7,7 +7,7 @@ const teacherName = "Teacher’s Name";
 
 const features = [
     { label: 'Attendance', image: require('@/assets/images/attendance.png'), route: '/AttendanceScreen' },
-    { label: 'Time Table', image: require('@/assets/images/timetable.png') },
+    { label: 'Timetable', image: require('@/assets/images/timetable.png'), route: '/TimetableScreen' },
     { label: 'Students', image: require('@/assets/images/students.png') },
     { label: 'Exams', image: require('@/assets/images/exams.png') },
     { label: 'Results', image: require('@/assets/images/results.png') },
