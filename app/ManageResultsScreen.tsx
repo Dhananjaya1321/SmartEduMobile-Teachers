@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import ScrollView = Animated.ScrollView;
 
 const features = [
-    { label: 'My Class Students', image: require('@/assets/images/students.png'), route: '' },
+    { label: 'My Class Students', image: require('@/assets/images/students.png'), route: '/MyClassStudentsReportsScreen' },
     { label: 'Students I Teach', image: require('@/assets/images/studenWithTeacher.png'), route: '/ManageResultsClassesITaughtScreen' },
 ];
 
