@@ -5,8 +5,6 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import AttendanceScreen from '@/app/AttendanceScreen';
-import TimetableScreen from "@/app/TimetableScreen";
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -24,11 +22,15 @@ export default function RootLayout() {
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen name="+not-found" />
                 <Stack.Screen
-                    name="AttendanceScreen"
+                    name="ManageAttendanceScreen"
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
-                    name="TimetableScreen"
+                    name="ManageTimetableScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="ManageStudentsScreen"
                     options={{ headerShown: false }}
                 />
             </Stack>

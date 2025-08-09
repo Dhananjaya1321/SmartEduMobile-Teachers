@@ -5,8 +5,10 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {useNavigation} from "expo-router";
 
 const features = [
-    { label: 'My class schedule', image: require('@/assets/images/timetable.png') },
-    { label: 'View other class schedules', image: require('@/assets/images/timetable1.png') },
+    { label: 'Mark the attendance', image: require('@/assets/images/attendance.png') },
+    { label: 'View student attendance', image: require('@/assets/images/viewReport.png') },
+    { label: 'Attendance report of all students', image: require('@/assets/images/viewReport1.png') },
+    { label: 'View students today attendance', image: require('@/assets/images/viewReport.png') },
 ];
 
 function formatData(data: any[], numColumns: number) {
@@ -20,7 +22,14 @@ function formatData(data: any[], numColumns: number) {
     return data;
 }
 
-export default function TimetableScreen() {
+type RootStackParamList = {
+    Home: undefined;
+    Attendance: undefined;
+};
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Attendance'>;
+
+export default function ManageAttendanceScreen() {
     const navigation = useNavigation();
     return (
         <View style={styles.container}>
@@ -29,7 +38,7 @@ export default function TimetableScreen() {
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Manage Timetable</Text>
+                <Text style={styles.headerTitle}>Manage Attendance</Text>
                 <Ionicons name="notifications-outline" size={24} color="black" />
             </View>
 

@@ -6,13 +6,13 @@ import { useRouter } from 'expo-router';
 const teacherName = "Teacher’s Name";
 
 const features = [
-    { label: 'Attendance', image: require('@/assets/images/attendance.png'), route: '/AttendanceScreen' },
-    { label: 'Timetable', image: require('@/assets/images/timetable.png'), route: '/TimetableScreen' },
-    { label: 'Students', image: require('@/assets/images/students.png') },
-    { label: 'Exams', image: require('@/assets/images/exams.png') },
-    { label: 'Results', image: require('@/assets/images/results.png') },
-    { label: 'Homework', image: require('@/assets/images/homework.png') },
-    { label: 'Events', image: require('@/assets/images/events.png') },
+    { label: 'Attendance', image: require('@/assets/images/attendance.png'), route: '/ManageAttendanceScreen' },
+    { label: 'Timetable', image: require('@/assets/images/timetable.png'), route: '/ManageTimetableScreen' },
+    { label: 'Students', image: require('@/assets/images/students.png'), route: '/ManageStudentsScreen' },
+    { label: 'Exams', image: require('@/assets/images/exams.png'), route: '/ManageExamsScreen' },
+    { label: 'Results', image: require('@/assets/images/results.png'), route: '/ManageResultsScreen' },
+    { label: 'Homework', image: require('@/assets/images/homework.png'), route: '/ManageHomeworkScreen' },
+    { label: 'Events', image: require('@/assets/images/events.png'), route: '/ManageEventsScreen' },
 ];
 
 function formatData(data, numColumns) {
