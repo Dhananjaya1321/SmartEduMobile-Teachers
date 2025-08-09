@@ -33,6 +33,10 @@ export default function RootLayout() {
                     name="ManageStudentsScreen"
                     options={{ headerShown: false }}
                 />
+                <Stack.Screen
+                    name="ManageExamsScreen"
+                    options={{ headerShown: false }}
+                />
             </Stack>
             <StatusBar style="auto" />
         </ThemeProvider>

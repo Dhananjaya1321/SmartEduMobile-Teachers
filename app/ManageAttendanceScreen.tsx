@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import {View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Animated} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {useNavigation} from "expo-router";
+import ScrollView = Animated.ScrollView;
 
 const features = [
     { label: 'Mark the attendance', image: require('@/assets/images/attendance.png') },
@@ -32,7 +33,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Attendance'>;
 export default function ManageAttendanceScreen() {
     const navigation = useNavigation();
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -60,7 +61,7 @@ export default function ManageAttendanceScreen() {
                     );
                 }}
             />
-        </View>
+        </ScrollView>
     );
 }
 
@@ -82,6 +83,6 @@ const styles = StyleSheet.create({
         elevation: 3
     },
     cardImage: { width: 60, height: 60, resizeMode: 'contain', marginBottom: 8 },
-    cardText: { fontSize: 12, textAlign: 'center', paddingHorizontal: 30 },
+    cardText: { fontSize: 12, textAlign: 'center', paddingHorizontal: 15 },
     invisibleCard: { backgroundColor: 'transparent', elevation: 0, shadowOpacity: 0 }
 });
