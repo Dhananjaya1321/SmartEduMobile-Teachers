@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Animated} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import ScrollView = Animated.ScrollView;
 
 export default function ManageResultsClassesITaughtScreen() {
     const router = useRouter();
@@ -42,7 +43,7 @@ export default function ManageResultsClassesITaughtScreen() {
 
     const handleClassPress = (item) => {
         router.push({
-            pathname: '/AddHomeworkScreen',
+            pathname: '/StudentsMarksEntryScreen',
             params: { grade: item.grade, class: item.class, subject: item.subject, year: '2021' },
         });
     };
@@ -64,7 +65,7 @@ export default function ManageResultsClassesITaughtScreen() {
     }
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color="black" />
@@ -99,7 +100,7 @@ export default function ManageResultsClassesITaughtScreen() {
                     </TouchableOpacity>
                 )}
             />
-        </View>
+        </ScrollView>
     );
 }
 
