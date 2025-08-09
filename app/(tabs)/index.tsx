@@ -43,7 +43,7 @@ export default function HomeScreen() {
             <FlatList
                 data={formatData(features, 3)}
                 keyExtractor={(item, index) => index.toString()}
-                numColumns={3}
+                numColumns={2}
                 renderItem={({ item }) => {
                     if (item.empty) {
                         return <View style={[styles.card, styles.invisibleCard]} />;

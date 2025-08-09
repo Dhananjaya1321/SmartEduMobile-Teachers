@@ -1,16 +1,15 @@
 import React from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Animated} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {useNavigation} from "expo-router";
+import { useRouter } from 'expo-router';
 import ScrollView = Animated.ScrollView;
 
 const features = [
-    { label: 'My Class Students', image: require('@/assets/images/students.png') },
-    { label: 'Students I Teach', image: require('@/assets/images/studenWithTeacher.png') },
+    { label: 'My Class Students', image: require('@/assets/images/students.png'), route: '' },
+    { label: 'Students I Teach', image: require('@/assets/images/studenWithTeacher.png'), route: '/ManageResultsClassesITaughtScreen' },
 ];
 
-function formatData(data: any[], numColumns: number) {
+function formatData(data, numColumns) {
     const numberOfFullRows = Math.floor(data.length / numColumns);
     let numberOfElementsLastRow = data.length - numberOfFullRows * numColumns;
 
@@ -22,12 +21,13 @@ function formatData(data: any[], numColumns: number) {
 }
 
 export default function ManageResultsScreen() {
-    const navigation = useNavigation();
+    const router = useRouter();
+
     return (
         <ScrollView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
+                <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Manage Results</Text>
@@ -45,14 +45,16 @@ export default function ManageResultsScreen() {
                         return <View style={[styles.card, styles.invisibleCard]} />;
                     }
                     return (
-                        <TouchableOpacity style={styles.card} onPress={() => {}}>
+                        <TouchableOpacity
+                            style={styles.card}
+                            onPress={() => item.route && router.push(item.route)}
+                        >
                             <Image source={item.image} style={styles.cardImage} />
                             <Text style={styles.cardText}>{item.label}</Text>
                         </TouchableOpacity>
                     );
                 }}
             />
-
         </ScrollView>
     );
 }
@@ -72,9 +74,9 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        elevation: 3
+        elevation: 3,
     },
     cardImage: { width: 60, height: 60, resizeMode: 'contain', marginBottom: 8 },
     cardText: { fontSize: 12, textAlign: 'center', paddingHorizontal: 15 },
-    invisibleCard: { backgroundColor: 'transparent', elevation: 0, shadowOpacity: 0 }
+    invisibleCard: { backgroundColor: 'transparent', elevation: 0, shadowOpacity: 0 },
 });

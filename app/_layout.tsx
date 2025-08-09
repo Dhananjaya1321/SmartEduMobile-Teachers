@@ -8,6 +8,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import ManageResultsScreen from "@/app/ManageResultsScreen";
 import ManageHomeworkScreen from "@/app/ManageHomeworkScreen";
 import AddHomeworkScreen from "@/app/AddHomeworkScreen";
+import ManageResultsClassesITaughtScreen from "@/app/ManageResultsClassesITaughtScreen";
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -54,6 +55,10 @@ export default function RootLayout() {
                 />
                 <Stack.Screen
                     name="ViewEventsScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="ManageResultsClassesITaughtScreen"
                     options={{ headerShown: false }}
                 />
             </Stack>
