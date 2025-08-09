@@ -7,6 +7,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import ManageResultsScreen from "@/app/ManageResultsScreen";
 import ManageHomeworkScreen from "@/app/ManageHomeworkScreen";
+import AddHomeworkScreen from "@/app/AddHomeworkScreen";
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -45,6 +46,10 @@ export default function RootLayout() {
                 />
                 <Stack.Screen
                     name="ManageHomeworkScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="AddHomeworkScreen"
                     options={{ headerShown: false }}
                 />
             </Stack>
