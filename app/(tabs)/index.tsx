@@ -12,7 +12,7 @@ const features = [
     { label: 'Exams', image: require('@/assets/images/exams.png'), route: '/ManageExamsScreen' },
     { label: 'Results', image: require('@/assets/images/results.png'), route: '/ManageResultsScreen' },
     { label: 'Homework', image: require('@/assets/images/homework.png'), route: '/ManageHomeworkScreen' },
-    { label: 'Events', image: require('@/assets/images/events.png'), route: '/ManageEventsScreen' },
+    { label: 'Events', image: require('@/assets/images/events.png'), route: '/ViewEventsScreen' },
 ];
 
 function formatData(data, numColumns) {

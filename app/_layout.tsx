@@ -52,6 +52,10 @@ export default function RootLayout() {
                     name="AddHomeworkScreen"
                     options={{ headerShown: false }}
                 />
+                <Stack.Screen
+                    name="ViewEventsScreen"
+                    options={{ headerShown: false }}
+                />
             </Stack>
             <StatusBar style="auto" />
         </ThemeProvider>
