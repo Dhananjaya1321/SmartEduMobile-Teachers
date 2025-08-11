@@ -13,6 +13,9 @@ import StudentsMarksEntryScreen from "@/app/StudentsMarksEntryScreen";
 import MyClassStudentsReportsScreen from "@/app/MyClassStudentsReportsScreen";
 import TermExamResultsReleaseScreen from "@/app/TermExamResultsReleaseScreen";
 import StudentsReportScreen from "@/app/StudentsReportScreen";
+import MarkAttendanceScreen from "@/app/MarkAttendanceScreen";
+import AttendanceReportScreen from "@/app/AttendanceReportScreen";
+import ViewAttendanceScreen from "@/app/ViewAttendanceScreen";
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -83,6 +86,14 @@ export default function RootLayout() {
                 />
                 <Stack.Screen
                     name="StudentFullReportScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="MarkAttendanceScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="ViewAttendanceScreen"
                     options={{ headerShown: false }}
                 />
             </Stack>
