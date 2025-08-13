@@ -11,6 +11,7 @@ import MyClassSchedule from "@/app/MyClassSchedule";
 import OtherClassSchedules from "@/app/OtherClassSchedules";
 import MyClassStudentsScreen from "@/app/MyClassStudentsScreen";
 import OtherClassesITaughtScreen from "@/app/OtherClassesITaughtScreen";
+import AddNewStudentScreen from "@/app/AddNewStudentScreen";
 
 
 export default function RootLayout() {
@@ -118,6 +119,10 @@ export default function RootLayout() {
                 />
                 <Stack.Screen
                     name="OtherClassStudentsScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="AddNewStudentScreen"
                     options={{ headerShown: false }}
                 />
             </Stack>
