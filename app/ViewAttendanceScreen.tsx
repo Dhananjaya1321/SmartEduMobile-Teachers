@@ -143,40 +143,50 @@ export default function ViewAttendanceScreen() {
                 <Ionicons name="notifications-outline" size={24} color="#333" />
             </View>
 
-            <View style={styles.dropdownRow}>
-                <View style={styles.dropdownContainer}>
-                    <Text style={styles.label}>Current Grade</Text>
-                    <Dropdown
-                        style={styles.dropdown}
-                        placeholderStyle={styles.placeholderStyle}
-                        selectedTextStyle={styles.selectedTextStyle}
-                        data={[
-                            { label: 'Grade - 10', value: 'Grade - 10' },
-                            { label: 'Grade - 11', value: 'Grade - 11' },
-                        ]}
-                        labelField="label"
-                        valueField="value"
-                        value={grade}
-                        onChange={(item) => setGrade(item.value)}
-                        renderRightIcon={() => <Ionicons name="chevron-down" size={20} color="#555" />}
-                    />
+            <View style={styles.gradeClassRow}>
+                <View style={styles.gradeBox}>
+                    <Text style={styles.label}>Grade</Text>
+                    <View style={styles.inputBox}>
+                        <Dropdown
+                            style={styles.dropdown}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            iconStyle={styles.iconStyle}
+                            data={[
+                                { label: 'Grade - 10', value: 'Grade - 10' },
+                                { label: 'Grade - 11', value: 'Grade - 11' },
+                                { label: 'Grade - 12', value: 'Grade - 12' },
+                                { label: 'Grade - 13', value: 'Grade - 13' },
+                            ]}
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            value={grade}
+                            onChange={item => setGrade(item.value)}
+                        />
+                    </View>
                 </View>
-                <View style={styles.dropdownContainer}>
-                    <Text style={styles.label}>Current Class</Text>
-                    <Dropdown
-                        style={styles.dropdown}
-                        placeholderStyle={styles.placeholderStyle}
-                        selectedTextStyle={styles.selectedTextStyle}
-                        data={[
-                            { label: 'Class - A', value: 'Class - A' },
-                            { label: 'Class - B', value: 'Class - B' },
-                        ]}
-                        labelField="label"
-                        valueField="value"
-                        value={className}
-                        onChange={(item) => setClassName(item.value)}
-                        renderRightIcon={() => <Ionicons name="chevron-down" size={20} color="#555" />}
-                    />
+                <View style={styles.classBox}>
+                    <Text style={styles.label}>Class</Text>
+                    <View style={styles.inputBox}>
+                        <Dropdown
+                            style={styles.dropdown}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            iconStyle={styles.iconStyle}
+                            data={[
+                                { label: 'Class - A', value: 'Class - A' },
+                                { label: 'Class - B', value: 'Class - B' },
+                                { label: 'Class - C', value: 'Class - C' },
+                                { label: 'Class - D', value: 'Class - D' },
+                            ]}
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            value={className}
+                            onChange={item => setClassName(item.value)}
+                        />
+                    </View>
                 </View>
             </View>
 
@@ -268,10 +278,6 @@ const styles = StyleSheet.create({
     headerTitle: { fontSize: 18, fontWeight: '600' },
     dropdownRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
     dropdownContainer: { flex: 1, marginRight: 10 },
-    label: { fontSize: 14, color: '#555', marginBottom: 5 },
-    dropdown: { backgroundColor: '#E0E0E0', padding: 10, borderRadius: 5 },
-    placeholderStyle: { fontSize: 14, color: '#777' },
-    selectedTextStyle: { fontSize: 14, color: '#333' },
     searchBox: { backgroundColor: '#fff', padding: 10, borderRadius: 5, flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
     searchIcon: { marginRight: 10 },
     searchInput: { flex: 1, fontSize: 14 },
@@ -294,4 +300,13 @@ const styles = StyleSheet.create({
     legendItem: { flexDirection: 'row', alignItems: 'center', marginRight: 20 },
     legendCircle: { width: 20, height: 20, borderRadius: 10, marginRight: 5 },
     errorText: { textAlign: 'center', fontSize: 16, color: 'red' },
+    inputBox: { backgroundColor: '#fff', padding: 12, borderRadius: 8, elevation: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4 },
+    dropdown: {backgroundColor: 'transparent' },
+    gradeClassRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+    gradeBox: { flex: 1, marginRight: 10 },
+    label: { fontSize: 16, color: '#444', marginBottom: 8 },
+    placeholderStyle: { fontSize: 16, color: '#888' },
+    selectedTextStyle: { fontSize: 16, color: '#333' },
+    iconStyle: { width: 20, height: 20 },
+    classBox: { flex: 1 },
 });

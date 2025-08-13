@@ -2,13 +2,13 @@ import React from 'react';
 import {View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Animated} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {useNavigation} from "expo-router";
+import {useNavigation, useRouter} from "expo-router";
 import ScrollView = Animated.ScrollView;
 
 const features = [
-    { label: 'My Class Students', image: require('@/assets/images/students.png') },
-    { label: 'Students I Teach', image: require('@/assets/images/studenWithTeacher.png') },
-    { label: 'Add New Student ', image: require('@/assets/images/singleStudent.png') },
+    { label: 'My Class Students', image: require('@/assets/images/students.png'), route: '/MyClassStudentsScreen' },
+    { label: 'Students I Teach', image: require('@/assets/images/studenWithTeacher.png'), route: '/MyClassSchedule' },
+    { label: 'Add New Student ', image: require('@/assets/images/singleStudent.png'), route: '/MyClassSchedule' },
 ];
 
 function formatData(data: any[], numColumns: number) {
@@ -24,7 +24,9 @@ function formatData(data: any[], numColumns: number) {
 
 
 export default function ManageStudentsScreen() {
+    const router = useRouter();
     const navigation = useNavigation();
+
     return (
         <ScrollView style={styles.container}>
             {/* Header */}
@@ -47,7 +49,7 @@ export default function ManageStudentsScreen() {
                         return <View style={[styles.card, styles.invisibleCard]} />;
                     }
                     return (
-                        <TouchableOpacity style={styles.card} onPress={() => {}}>
+                        <TouchableOpacity style={styles.card} onPress={() => item.route && router.push(item.route)}>
                             <Image source={item.image} style={styles.cardImage} />
                             <Text style={styles.cardText}>{item.label}</Text>
                         </TouchableOpacity>
