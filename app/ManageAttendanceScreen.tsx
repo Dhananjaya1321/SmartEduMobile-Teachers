@@ -17,12 +17,12 @@ const features = [
     {
         label: 'Attendance report of all students',
         image: require('@/assets/images/viewReport1.png'),
-        route: '/AttendanceReportScreen'
+        route: '/AttendanceReportOfAllStudents'
     },
     {
         label: 'View students today attendance',
         image: require('@/assets/images/viewReport.png'),
-        route: '/ManageAttendanceScreen'
+        route: '/ViewStudentsTodayAttendance'
     },
 ];
 

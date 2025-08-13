@@ -5,17 +5,9 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import ManageResultsScreen from "@/app/ManageResultsScreen";
-import ManageHomeworkScreen from "@/app/ManageHomeworkScreen";
-import AddHomeworkScreen from "@/app/AddHomeworkScreen";
-import ManageResultsClassesITaughtScreen from "@/app/ManageResultsClassesITaughtScreen";
-import StudentsMarksEntryScreen from "@/app/StudentsMarksEntryScreen";
-import MyClassStudentsReportsScreen from "@/app/MyClassStudentsReportsScreen";
-import TermExamResultsReleaseScreen from "@/app/TermExamResultsReleaseScreen";
-import StudentsReportScreen from "@/app/StudentsReportScreen";
-import MarkAttendanceScreen from "@/app/MarkAttendanceScreen";
-import AttendanceReportScreen from "@/app/AttendanceReportScreen";
-import ViewAttendanceScreen from "@/app/ViewAttendanceScreen";
+import AttendanceReportOfAllStudents from "@/app/AttendanceReportOfAllStudents";
+import ViewStudentsTodayAttendance from "@/app/ViewStudentsTodayAttendance";
+
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -94,6 +86,14 @@ export default function RootLayout() {
                 />
                 <Stack.Screen
                     name="ViewAttendanceScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="AttendanceReportOfAllStudents"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="ViewStudentsTodayAttendance"
                     options={{ headerShown: false }}
                 />
             </Stack>
