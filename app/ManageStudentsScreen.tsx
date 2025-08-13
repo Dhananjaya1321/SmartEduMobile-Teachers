@@ -7,7 +7,7 @@ import ScrollView = Animated.ScrollView;
 
 const features = [
     { label: 'My Class Students', image: require('@/assets/images/students.png'), route: '/MyClassStudentsScreen' },
-    { label: 'Students I Teach', image: require('@/assets/images/studenWithTeacher.png'), route: '/MyClassSchedule' },
+    { label: 'Students I Teach', image: require('@/assets/images/studenWithTeacher.png'), route: '/OtherClassesITaughtScreen' },
     { label: 'Add New Student ', image: require('@/assets/images/singleStudent.png'), route: '/MyClassSchedule' },
 ];
 

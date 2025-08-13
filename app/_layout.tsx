@@ -10,6 +10,7 @@ import ViewStudentsTodayAttendance from "@/app/ViewStudentsTodayAttendance";
 import MyClassSchedule from "@/app/MyClassSchedule";
 import OtherClassSchedules from "@/app/OtherClassSchedules";
 import MyClassStudentsScreen from "@/app/MyClassStudentsScreen";
+import OtherClassesITaughtScreen from "@/app/OtherClassesITaughtScreen";
 
 
 export default function RootLayout() {
@@ -109,6 +110,14 @@ export default function RootLayout() {
                 />
                 <Stack.Screen
                     name="MyClassStudentsScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="OtherClassesITaughtScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="OtherClassStudentsScreen"
                     options={{ headerShown: false }}
                 />
             </Stack>
