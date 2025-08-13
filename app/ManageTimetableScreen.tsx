@@ -2,12 +2,13 @@ import React from 'react';
 import {View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Animated} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {useNavigation} from "expo-router";
+import {useNavigation, useRouter} from "expo-router";
 import ScrollView = Animated.ScrollView;
+import MyClassSchedule from "@/app/MyClassSchedule";
 
 const features = [
-    { label: 'My class schedule', image: require('@/assets/images/timetable.png') },
-    { label: 'View other class schedules', image: require('@/assets/images/timetable1.png') },
+    { label: 'My class schedule', image: require('@/assets/images/timetable.png'), route: '/MyClassSchedule' },
+    { label: 'View other class schedules', image: require('@/assets/images/timetable1.png'), route: '/MyClassStudentsReportsScreen' },
 ];
 
 function formatData(data: any[], numColumns: number) {
@@ -23,6 +24,7 @@ function formatData(data: any[], numColumns: number) {
 
 export default function ManageTimetableScreen() {
     const navigation = useNavigation();
+    const router = useRouter();
     return (
         <ScrollView style={styles.container}>
             {/* Header */}
@@ -45,7 +47,7 @@ export default function ManageTimetableScreen() {
                         return <View style={[styles.card, styles.invisibleCard]} />;
                     }
                     return (
-                        <TouchableOpacity style={styles.card} onPress={() => {}}>
+                        <TouchableOpacity style={styles.card} onPress={() => item.route && router.push(item.route)}>
                             <Image source={item.image} style={styles.cardImage} />
                             <Text style={styles.cardText}>{item.label}</Text>
                         </TouchableOpacity>
