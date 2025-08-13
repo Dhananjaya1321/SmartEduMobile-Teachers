@@ -5,10 +5,11 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {useNavigation, useRouter} from "expo-router";
 import ScrollView = Animated.ScrollView;
 import MyClassSchedule from "@/app/MyClassSchedule";
+import OtherClassSchedules from "@/app/OtherClassSchedules";
 
 const features = [
     { label: 'My class schedule', image: require('@/assets/images/timetable.png'), route: '/MyClassSchedule' },
-    { label: 'View other class schedules', image: require('@/assets/images/timetable1.png'), route: '/MyClassStudentsReportsScreen' },
+    { label: 'View other class schedules', image: require('@/assets/images/timetable1.png'), route: '/OtherClassSchedules' },
 ];
 
 function formatData(data: any[], numColumns: number) {

@@ -130,8 +130,8 @@ export default function MyClassStudentsReportsScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F6F9FC', padding: 20 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    container: { flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50 },
     headerTitle: { fontSize: 18, fontWeight: '600' },
     infoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
     infoBox: { flex: 1, marginHorizontal: 5 },

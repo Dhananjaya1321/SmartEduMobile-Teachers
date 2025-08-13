@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {router, useLocalSearchParams} from 'expo-router';
 
@@ -27,7 +27,7 @@ export default function AddHomeworkScreen() {
     }, [grade, className, subject]);
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color="black" />
@@ -90,13 +90,13 @@ export default function AddHomeworkScreen() {
                 )}
                 contentContainerStyle={styles.homeworkList}
             />
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F6F9FC', padding: 20 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    container: { flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50 },
     headerTitle: { fontSize: 18, fontWeight: '600' },
     infoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
     infoBox: { flex: 1, marginHorizontal: 5 },

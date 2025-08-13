@@ -105,8 +105,8 @@ export default function ManageResultsClassesITaughtScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F6F9FC', padding: 20 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    container: { flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50 },
     headerTitle: { fontSize: 18, fontWeight: '600' },
     yearText: { fontSize: 14, color: '#555', marginBottom: 5 },
     yearBox: { backgroundColor: '#E0E0E0', borderRadius: 5, padding: 10, marginBottom: 20 },

@@ -146,8 +146,8 @@ export default function StudentFullReportScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F6F9FC', padding: 20 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    container: { flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50 },
     headerTitle: { fontSize: 18, fontWeight: '600' },
     profileSection: { alignItems: 'center', marginBottom: 20 },
     profilePhoto: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },

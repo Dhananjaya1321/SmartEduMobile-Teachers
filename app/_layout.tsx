@@ -8,6 +8,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import AttendanceReportOfAllStudents from "@/app/AttendanceReportOfAllStudents";
 import ViewStudentsTodayAttendance from "@/app/ViewStudentsTodayAttendance";
 import MyClassSchedule from "@/app/MyClassSchedule";
+import OtherClassSchedules from "@/app/OtherClassSchedules";
 
 
 export default function RootLayout() {
@@ -99,6 +100,10 @@ export default function RootLayout() {
                 />
                 <Stack.Screen
                     name="MyClassSchedule"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="OtherClassSchedules"
                     options={{ headerShown: false }}
                 />
             </Stack>

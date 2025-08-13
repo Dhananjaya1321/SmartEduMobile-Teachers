@@ -106,8 +106,8 @@ export default function TermExamResultsReleaseScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F6F9FC', padding: 20 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    container: { flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50 },
     headerTitle: { fontSize: 18, fontWeight: '600' },
     tableHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
     tableHeaderText: { fontSize: 14, fontWeight: 'bold', color: '#555' },

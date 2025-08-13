@@ -217,8 +217,8 @@
     }
 
     const styles = StyleSheet.create({
-        container: { flex: 1, backgroundColor: '#F6F9FC', padding: 15 },
-        header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingHorizontal: 5 },
+        container: { flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20 },
+        header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50 },
         headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#333' },
         label: { fontSize: 16, color: '#444', marginBottom: 8 },
         dateBox: {

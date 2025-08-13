@@ -157,7 +157,7 @@ export default function AttendanceReportOfAllStudents() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50 },
     headerTitle: {textAlign:"center", fontSize: 18, fontWeight: '600' },
     filterContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
     filterItem: { flex: 1, marginHorizontal: 5 },

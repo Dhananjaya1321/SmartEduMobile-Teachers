@@ -3,16 +3,19 @@ import {View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator} f
 import {Ionicons} from '@expo/vector-icons';
 import {useNavigation} from 'expo-router';
 import Animated, {SlideInDown} from 'react-native-reanimated';
+import {Dropdown} from "react-native-element-dropdown";
 
 const ScrollView = Animated.ScrollView;
 
-export default function MyClassSchedule() {
+export default function OtherClassSchedules() {
     const navigation = useNavigation();
-    const [view, setView] = useState('today'); // 'today' or 'weekly'
+    const [view, setView] = useState('weekly');
     const [schedule, setSchedule] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [expandedDays, setExpandedDays] = useState(new Set());
+    const [grade, setGrade] = useState('Grade - 10');
+    const [className, setClassName] = useState('Class - A');
 
     useEffect(() => {
         const fetchScheduleData = async () => {
@@ -22,17 +25,6 @@ export default function MyClassSchedule() {
                 // const response = await fetch('your-backend-api/schedule');
                 // const data = await response.json();
                 const sampleData = {
-                    today: [
-                        {day: 'Tuesday', time: '08:30 A.M. - 09:05 A.M.', gradeClass: 'Grade 10 - A'},
-                        {day: 'Tuesday', time: '09:05 A.M. - 09:40 A.M.', gradeClass: 'Grade 10 - A'},
-                        {day: 'Tuesday', time: '09:40 A.M. - 10:15 A.M.', gradeClass: 'Grade 9 - E'},
-                        {day: 'Tuesday', time: '10:15 A.M. - 10:50 A.M.', gradeClass: 'Grade 8 - C'},
-                        {day: 'Tuesday', time: '10:50 A.M. - 11:10 A.M.', gradeClass: 'Interval'},
-                        {day: 'Tuesday', time: '11:10 A.M. - 11:45 A.M.', gradeClass: 'Grade 7 - B'},
-                        {day: 'Tuesday', time: '11:45 A.M. - 12:20 P.M.', gradeClass: 'Grade 7 - B'},
-                        {day: 'Tuesday', time: '12:20 P.M. - 12:55 P.M.', gradeClass: '-'},
-                        {day: 'Tuesday', time: '12:55 P.M. - 01:30 P.M.', gradeClass: 'Grade 10 - E'},
-                    ],
                     weekly: {
                         Monday: [],
                         Tuesday: [
@@ -88,36 +80,57 @@ export default function MyClassSchedule() {
                 <Ionicons name="notifications-outline" size={24} color="#333"/>
             </View>
 
-            {/* Tabs */}
-            <View style={styles.tabContainer}>
-                <TouchableOpacity
-                    style={[styles.tab, view === 'today' && styles.activeTab]}
-                    onPress={() => setView('today')}
-                >
-                    <Text style={[styles.tabText, view === 'today' && styles.activeTabText]}>Today's schedule</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.tab, view === 'weekly' && styles.activeTab]}
-                    onPress={() => setView('weekly')}
-                >
-                    <Text style={[styles.tabText, view === 'weekly' && styles.activeTabText]}>Weekly schedule</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* Schedule Content */}
-            {view === 'today' && (
-                <View entering={SlideInDown}>
-                    <View style={styles.scheduleItem}>
-                        <Text style={styles.scheduleDay}>{schedule.today.day}</Text>
-                        {schedule.today && schedule.today.map((item, index) => (
-                            <View style={styles.scheduleTable}>
-                                <Text style={styles.scheduleTime}>{item.time}</Text>
-                                <Text style={styles.scheduleGrade}>{item.gradeClass}</Text>
-                            </View>
-                        ))}
+            <View style={styles.gradeClassRow}>
+                <View style={styles.gradeBox}>
+                    <Text style={styles.label}>Grade</Text>
+                    <View style={styles.inputBox}>
+                        <Dropdown
+                            style={styles.dropdown}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            iconStyle={styles.iconStyle}
+                            data={[
+                                { label: 'Grade - 10', value: 'Grade - 10' },
+                                { label: 'Grade - 11', value: 'Grade - 11' },
+                                { label: 'Grade - 12', value: 'Grade - 12' },
+                                { label: 'Grade - 13', value: 'Grade - 13' },
+                            ]}
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            value={grade}
+                            onChange={item => setGrade(item.value)}
+                        />
                     </View>
                 </View>
-            )}
+                <View style={styles.classBox}>
+                    <Text style={styles.label}>Class</Text>
+                    <View style={styles.inputBox}>
+                        <Dropdown
+                            style={styles.dropdown}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            iconStyle={styles.iconStyle}
+                            data={[
+                                { label: 'Class - A', value: 'Class - A' },
+                                { label: 'Class - B', value: 'Class - B' },
+                                { label: 'Class - C', value: 'Class - C' },
+                                { label: 'Class - D', value: 'Class - D' },
+                            ]}
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            value={className}
+                            onChange={item => setClassName(item.value)}
+                        />
+                    </View>
+                </View>
+            </View>
+
+            {/* Search Button */}
+            <TouchableOpacity style={styles.searchButton} onPress={() => {}}>
+                <Text style={styles.searchButtonText}>Search</Text>
+            </TouchableOpacity>
 
             {view === 'weekly' && (
                 <View entering={SlideInDown}>
@@ -176,4 +189,15 @@ const styles = StyleSheet.create({
     scheduleGrade: {fontSize: 14, color: '#444'},
     dayHeader: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'},
     errorText: {textAlign: 'center', fontSize: 16, color: 'red', marginTop: 20},
+    inputBox: { backgroundColor: '#fff', padding: 12, borderRadius: 8, elevation: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4 },
+    dropdown: {backgroundColor: 'transparent' },
+    gradeClassRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+    gradeBox: { flex: 1, marginRight: 10 },
+    label: { fontSize: 16, color: '#444', marginBottom: 8 },
+    placeholderStyle: { fontSize: 16, color: '#888' },
+    selectedTextStyle: { fontSize: 16, color: '#333' },
+    iconStyle: { width: 20, height: 20 },
+    classBox: { flex: 1 },
+    searchButton: { backgroundColor: '#4a5e7a', padding: 10, borderRadius: 5, marginBottom: 50 },
+    searchButtonText: { color: '#fff', textAlign: 'center', fontWeight: 'bold' },
 });
