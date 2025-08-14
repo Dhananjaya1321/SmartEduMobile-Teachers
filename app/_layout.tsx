@@ -3,26 +3,32 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import AttendanceReportOfAllStudents from "@/app/AttendanceReportOfAllStudents";
-import ViewStudentsTodayAttendance from "@/app/ViewStudentsTodayAttendance";
-import MyClassSchedule from "@/app/MyClassSchedule";
-import OtherClassSchedules from "@/app/OtherClassSchedules";
-import MyClassStudentsScreen from "@/app/MyClassStudentsScreen";
-import OtherClassesITaughtScreen from "@/app/OtherClassesITaughtScreen";
-import AddNewStudentScreen from "@/app/AddNewStudentScreen";
-import ALExamScheduleScreen from "@/app/ALExamScheduleScreen";
-import OLExamScheduleScreen from "@/app/OLExamScheduleScreen";
-import ScholarshipExamScheduleScreen from "@/app/ScholarshipExamScheduleScreen";
-import SemesterExamScheduleScreen from "@/app/SemesterExamScheduleScreen";
-
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
     const [loaded] = useFonts({
         SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     });
+    const router = useRouter();
+
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const user = await AsyncStorage.getItem('user');
+                if (!user) {
+                    router.replace('/LoginScreen');
+                }
+            } catch (error) {
+                console.error('Error checking login status:', error);
+            }
+        };
+        checkLoginStatus();
+    }, []);
 
     if (!loaded) {
         return null;
@@ -143,6 +149,10 @@ export default function RootLayout() {
                 />
                 <Stack.Screen
                     name="SemesterExamScheduleScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="LoginScreen"
                     options={{ headerShown: false }}
                 />
             </Stack>
