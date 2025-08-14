@@ -58,10 +58,12 @@ export default function ManageExamsScreen() {
             <View style={styles.mainSection}>
                 <Text style={styles.headerSubTitle}>Semester and Other Examinations</Text>
                 <View style={styles.subSection}>
-                    <TouchableOpacity style={styles.card} onPress={() => {
-                    }}>
+                    <TouchableOpacity
+                        style={styles.card}
+                        onPress={() => navigation.navigate('SemesterExamScheduleScreen')}
+                    >
                         <Image source={require('@/assets/images/exams.png')} style={styles.cardImage}/>
-                        <Text style={styles.cardText}>View Final Semester Exams</Text>
+                        <Text style={styles.cardText}>View Semester Exams</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.card} onPress={() => {
                     }}>
