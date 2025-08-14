@@ -44,8 +44,10 @@ export default function ManageExamsScreen() {
             <View style={styles.mainSection}>
                 <Text style={styles.headerSubTitle}>Scholarship Examination</Text>
                 <View style={styles.subSection}>
-                    <TouchableOpacity style={styles.card} onPress={() => {
-                    }}>
+                    <TouchableOpacity
+                        style={styles.card}
+                        onPress={() => navigation.navigate('ScholarshipExamScheduleScreen')}
+                    >
                         <Image source={require('@/assets/images/exams.png')} style={styles.cardImage}/>
                         <Text style={styles.cardText}>Grade 5 Scholarship Exam</Text>
                     </TouchableOpacity>

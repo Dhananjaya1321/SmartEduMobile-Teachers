@@ -14,6 +14,7 @@ import OtherClassesITaughtScreen from "@/app/OtherClassesITaughtScreen";
 import AddNewStudentScreen from "@/app/AddNewStudentScreen";
 import ALExamScheduleScreen from "@/app/ALExamScheduleScreen";
 import OLExamScheduleScreen from "@/app/OLExamScheduleScreen";
+import ScholarshipExamScheduleScreen from "@/app/ScholarshipExamScheduleScreen";
 
 
 export default function RootLayout() {
@@ -133,6 +134,10 @@ export default function RootLayout() {
                 />
                 <Stack.Screen
                     name="OLExamScheduleScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="ScholarshipExamScheduleScreen"
                     options={{ headerShown: false }}
                 />
             </Stack>
