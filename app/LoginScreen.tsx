@@ -64,7 +64,7 @@ export default function LoginScreen() {
             />
 
             <View style={styles.forgotPasswordButtonView}>
-                <TouchableOpacity style={styles.forgotPasswordButton} onPress={() => { /* Add forgot password logic here */ }}>
+                <TouchableOpacity style={styles.forgotPasswordButton} onPress={() => router.replace('/ForgotPasswordScreen')}>
                     <Text style={styles.forgotPasswordButtonText}>Forgot password?</Text>
                 </TouchableOpacity>
             </View>
@@ -73,7 +73,7 @@ export default function LoginScreen() {
                 <Text style={styles.loginButtonText}>Login</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.loginButton} onPress={() => { /* Add register logic here */ }}>
+            <TouchableOpacity style={styles.loginButton} onPress={() => router.replace('/RegisterScreen')}>
                 <Text style={styles.loginButtonText}>Register</Text>
             </TouchableOpacity>
         </ScrollView>

@@ -8,6 +8,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import RegisterScreen from "@/app/RegisterScreen";
+import ForgotPasswordScreen from "@/app/ForgotPasswordScreen";
+import VerifyCodeScreen from "@/app/VerifyCodeScreen";
+import ChangePasswordScreen from "@/app/ChangePasswordScreen";
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -153,6 +157,22 @@ export default function RootLayout() {
                 />
                 <Stack.Screen
                     name="LoginScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="RegisterScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="ForgotPasswordScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="VerifyCodeScreen"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="ChangePasswordScreen"
                     options={{ headerShown: false }}
                 />
             </Stack>
