@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import {View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Image} from 'react-native';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    Alert,
+    ScrollView,
+    ImageBackground
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
@@ -11,7 +20,6 @@ export default function RegisterScreen() {
     const router = useRouter();
 
     const handleRegister = async () => {
-        // Basic validation
         if (!username || !email || !password || !studentRegNumber) {
             Alert.alert('Error', 'All fields are required');
             return;
@@ -32,73 +40,89 @@ export default function RegisterScreen() {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <Image source={require('@/assets/images/background.jpg')} style={styles.backgroundImage} resizeMode="cover" />
-            <Text style={styles.title}>Teacher Dashboard</Text>
-            <Text style={styles.subtitle}>Register a New Account</Text>
+        <ImageBackground
+            source={require('@/assets/images/background.jpg')}
+            style={styles.backgroundImage}
+            resizeMode="cover"
+        >
+            <ScrollView contentContainerStyle={styles.container}>
+                <Text style={styles.title}>Teacher Dashboard</Text>
+                <Text style={styles.subtitle}>Register a New Account</Text>
 
-            <TextInput
-                style={styles.input}
-                placeholder="Username"
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
-            />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Username"
+                    placeholderTextColor="#888"
+                    value={username}
+                    onChangeText={setUsername}
+                    autoCapitalize="none"
+                />
 
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-            />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    placeholderTextColor="#888"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                />
 
-            <TextInput
-                style={styles.input}
-                placeholder="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-            />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    placeholderTextColor="#888"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                />
 
-            <TextInput
-                style={styles.input}
-                placeholder="Student Registration Number"
-                value={studentRegNumber}
-                onChangeText={setStudentRegNumber}
-                autoCapitalize="none"
-            />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Student Registration Number"
+                    placeholderTextColor="#888"
+                    value={studentRegNumber}
+                    onChangeText={setStudentRegNumber}
+                    autoCapitalize="none"
+                />
 
-            <TouchableOpacity style={styles.loginButton} onPress={handleRegister}>
-                <Text style={styles.loginButtonText}>Register</Text>
-            </TouchableOpacity>
+                <TouchableOpacity style={styles.loginButton} onPress={handleRegister}>
+                    <Text style={styles.loginButtonText}>Register</Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/LoginScreen')}>
-                <Text style={styles.backButtonText}>Back to Login</Text>
-            </TouchableOpacity>
-        </ScrollView>
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => router.replace('/LoginScreen')}
+                >
+                    <Text style={styles.backButtonText}>Back to Login</Text>
+                </TouchableOpacity>
+            </ScrollView>
+        </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
+    backgroundImage: {
+        flex: 1,
+        width: '100%',
+        height: '100%',
+    },
     container: {
         flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 20,
         paddingVertical: 20,
-        backgroundColor: '#F6F9FC',
     },
     title: {
         fontSize: 28,
         fontWeight: 'bold',
         marginBottom: 10,
-        color: '#ffffff',
+        color: '#fff',
     },
     subtitle: {
         fontSize: 16,
-        color: '#ffffff',
+        color: '#fff',
         marginBottom: 30,
     },
     input: {
@@ -117,39 +141,29 @@ const styles = StyleSheet.create({
     loginButton: {
         width: '100%',
         height: 50,
-        backgroundColor: 'rgba(0,122,255,0.38)',
+        backgroundColor: '#007AFF',
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20,
     },
     loginButtonText: {
-        color: 'rgb(255,255,255)',
+        color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
     },
     backButton: {
         width: '100%',
         height: 50,
-        backgroundColor: 'rgba(0,122,255,0.38)',
+        backgroundColor: '#005BB5',
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20,
     },
     backButtonText: {
-        color: '#ffffff',
+        color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
-    },
-    backgroundImage: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-        width: '100%',
-        height: '100%',
-        zIndex:-1
     },
 });

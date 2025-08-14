@@ -1,66 +1,91 @@
-import React, {useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Image} from 'react-native';
-import {useRouter} from 'expo-router';
+import React, { useState } from 'react';
+import {
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    ScrollView,
+    ImageBackground,
+    Alert
+} from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function VerifyCodeScreen() {
     const [otp, setOtp] = useState('');
     const router = useRouter();
 
     const handleSubmit = () => {
-        router.push('/ChangePasswordScreen')
+        if (!otp || otp.length !== 6) {
+            Alert.alert('Error', 'Please enter a valid 6-digit code');
+            return;
+        }
+        router.push('/ChangePasswordScreen');
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <Image source={require('@/assets/images/background.jpg')} style={styles.backgroundImage}
-                   resizeMode="cover"/>
-            <Text style={styles.title}>We sent a code to your email</Text>
-            <Text style={styles.subtitle}>Enter the 6-digit verification code sent to</Text>
+        <ImageBackground
+            source={require('@/assets/images/background.jpg')}
+            style={styles.backgroundImage}
+            resizeMode="cover"
+        >
+            <ScrollView contentContainerStyle={styles.container}>
+                <Text style={styles.title}>We sent a code to your email</Text>
+                <Text style={styles.subtitle}>
+                    Enter the 6-digit verification code sent to your email address
+                </Text>
 
-            <TextInput
-                style={styles.input}
-                placeholder="OTP Code"
-                value={otp}
-                onChangeText={setOtp}
-                keyboardType="number-pad"
-                autoCapitalize="none"
-            />
+                <TextInput
+                    style={styles.input}
+                    placeholder="OTP Code"
+                    placeholderTextColor="#888"
+                    value={otp}
+                    onChangeText={setOtp}
+                    keyboardType="number-pad"
+                    autoCapitalize="none"
+                />
 
-            <TouchableOpacity style={styles.resetButton} onPress={handleSubmit}>
-                <Text style={styles.resetButtonText}>Submit</Text>
-            </TouchableOpacity>
+                <TouchableOpacity style={styles.resetButton} onPress={handleSubmit}>
+                    <Text style={styles.resetButtonText}>Submit</Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/ForgotPasswordScreen')}>
-                <Text style={styles.backButtonText}>Go Back</Text>
-            </TouchableOpacity>
-        </ScrollView>
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => router.replace('/ForgotPasswordScreen')}
+                >
+                    <Text style={styles.backButtonText}>Go Back</Text>
+                </TouchableOpacity>
+            </ScrollView>
+        </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
+    backgroundImage: {
+        flex: 1,
+        width: '100%',
+        height: '100%',
+    },
     container: {
         flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 20,
         paddingVertical: 20,
-        backgroundColor: '#F6F9FC',
     },
     title: {
         paddingHorizontal: 20,
-        textAlign: "center",
+        textAlign: 'center',
         fontSize: 28,
         fontWeight: 'bold',
         marginBottom: 10,
-        color: '#ffffff',
+        color: '#fff',
     },
     subtitle: {
         paddingHorizontal: 20,
-        textAlign: "center",
-        fontSize: 16,
-        color: '#ffffff',
-        marginBottom: 30,
         textAlign: 'center',
+        fontSize: 16,
+        color: '#fff',
+        marginBottom: 30,
     },
     input: {
         width: '100%',
@@ -78,7 +103,7 @@ const styles = StyleSheet.create({
     resetButton: {
         width: '100%',
         height: 50,
-        backgroundColor: 'rgba(0,122,255,0.38)',
+        backgroundColor: '#007AFF',
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
@@ -92,25 +117,15 @@ const styles = StyleSheet.create({
     backButton: {
         width: '100%',
         height: 50,
-        backgroundColor: 'rgba(0,122,255,0.38)',
+        backgroundColor: '#005BB5',
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20,
     },
     backButtonText: {
-        color: '#ffffff',
+        color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
-    },
-    backgroundImage: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: -1
     },
 });
