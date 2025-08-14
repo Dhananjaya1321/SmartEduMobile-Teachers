@@ -1,33 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import {router, useLocalSearchParams} from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 export default function AddHomeworkScreen() {
     const { grade, class: className, subject, year } = useLocalSearchParams();
     const [totalHomework, setTotalHomework] = useState(0);
     const [homeworkList, setHomeworkList] = useState([]);
 
-    // Simulate fetching data from backend (replace with actual API call)
     useEffect(() => {
-        // Example API call (replace with your backend endpoint)
-        const fetchHomework = async () => {
-            // const response = await fetch(`your-backend-api-endpoint?grade=${grade}&class=${className}&subject=${subject}`);
-            // const data = await response.json();
-            // setTotalHomework(data.totalHomework);
-            // setHomeworkList(data.homeworkList || []);
-            setTotalHomework(3); // Hardcoded for now
-            setHomeworkList([
-                { id: 1, title: 'Homework 1' },
-                { id: 2, title: 'Homework 2' },
-                { id: 3, title: 'Homework 3' },
-            ]);
-        };
-        fetchHomework();
+        setTotalHomework(3);
+        setHomeworkList([
+            { id: 1, title: 'Homework 1' },
+            { id: 2, title: 'Homework 2' },
+            { id: 3, title: 'Homework 3' },
+        ]);
     }, [grade, className, subject]);
 
-    return (
-        <ScrollView style={styles.container}>
+    const renderHeader = () => (
+        <View>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color="black" />
@@ -73,24 +64,28 @@ export default function AddHomeworkScreen() {
                 <Text style={styles.totalHomework}>{totalHomework}</Text>
             </View>
 
-
-
             <TouchableOpacity style={styles.addButton}>
                 <Text style={styles.addButtonText}>Add New Homework</Text>
             </TouchableOpacity>
 
             <Text style={styles.homeworkLabel}>Homework you added.</Text>
-            <FlatList
-                data={homeworkList}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.homeworkItem}>
-                        <Text style={styles.homeworkText}>{item.title}</Text>
-                    </View>
-                )}
-                contentContainerStyle={styles.homeworkList}
-            />
-        </ScrollView>
+        </View>
+    );
+
+    return (
+        <FlatList
+            style={styles.container}
+            data={homeworkList}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+                <View style={styles.homeworkItem}>
+                    <Text style={styles.homeworkText}>{item.title}</Text>
+                </View>
+            )}
+            ListHeaderComponent={renderHeader}
+            contentContainerStyle={styles.homeworkList}
+            showsVerticalScrollIndicator={false}
+        />
     );
 }
 
@@ -111,5 +106,5 @@ const styles = StyleSheet.create({
     homeworkList: { paddingBottom: 20 },
     homeworkItem: { backgroundColor: '#D3D3D3', height: 150, borderRadius: 5, marginBottom: 10, justifyContent: 'center', alignItems: 'center' },
     homeworkText: { fontSize: 16, color: '#fff' },
-    totalClassesView: { display:"flex", flexDirection:"row", justifyContent:"space-between", marginBottom:10, alignItems:"center" },
+    totalClassesView: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, alignItems: 'center' },
 });

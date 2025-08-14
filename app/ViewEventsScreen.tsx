@@ -98,9 +98,14 @@ export default function ViewEventsScreen() {
                             <Text style={styles.eventGrade}>{item.grade}</Text>
                         </View>
                         <Text style={styles.eventTitle}>{item.title}</Text>
-                        <Text style={styles.eventDate}>
-                            Start date: {item.startDate} | End date: {item.endDate}
-                        </Text>
+                        <View style={{marginBottom:10}}>
+                            <Text style={styles.eventDate}>
+                                Start date: {item.startDate}
+                            </Text>
+                            <Text style={styles.eventDate}>
+                                End date: {item.endDate}
+                            </Text>
+                        </View>
                         <Text style={styles.eventDescription}>{item.description}</Text>
                     </View>
                 )}
@@ -129,7 +134,7 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     eventTitle: {fontSize: 16, fontWeight: 'bold', marginBottom: 5},
-    eventDate: {fontSize: 10, color: '#777', marginBottom: 15,marginTop:5},
+    eventDate: {fontSize: 10, color: '#777', marginBottom: 5,marginTop:0},
     eventGrade: {
         display: "flex",
         alignItems: "center",
@@ -140,6 +145,7 @@ const styles = StyleSheet.create({
     eventDescription: {fontSize: 12, color: '#333'},
     errorText: {textAlign: 'center', fontSize: 16, color: 'red'},
     gradeBox: {
+        marginTop:10,
         position: "absolute",
         right: 10,
         display: "flex",

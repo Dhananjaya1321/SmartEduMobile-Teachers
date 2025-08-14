@@ -162,7 +162,13 @@ const styles = StyleSheet.create({
     infoLabel: { fontSize: 14, color: '#555', marginBottom: 5 },
     infoValueBox: { backgroundColor: '#E0E0E0', borderRadius: 5, padding: 10 },
     infoValue: { fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
-    totalClassesView: { display:"flex", flexDirection:"row", justifyContent:"space-between", marginBottom:10, alignItems:"center" },
+    totalClassesView: {
+        display:"flex",
+        flexDirection:"row",
+        justifyContent:"space-between",
+        marginBottom:10,
+        alignItems:"center"
+    },
     totalStudentsText: { fontSize: 14, color: '#777', marginBottom: 5 },
     totalStudents: { fontSize: 16, fontWeight: 'bold', marginBottom: 15, paddingLeft:10 },
     clickText: { fontSize: 12, color: '#777', marginBottom: 15 },

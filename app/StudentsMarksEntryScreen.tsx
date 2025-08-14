@@ -115,7 +115,7 @@ export default function StudentsReportScreen() {
 
             <View style={styles.totalClassesView}>
                 <Text style={styles.totalStudentsText}>
-                    The total number of students in this class in this grade
+                    The total number of students
                 </Text>
                 <Text style={styles.totalStudents}>{totalStudents}</Text>
             </View>

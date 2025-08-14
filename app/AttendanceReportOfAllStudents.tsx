@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRouter } from "expo-router";
 import Animated from 'react-native-reanimated';
 import {Dropdown} from "react-native-element-dropdown";
+import RNDateTimePicker from "@react-native-community/datetimepicker";
 
 const ScrollView = Animated.ScrollView;
 
@@ -67,7 +68,9 @@ export default function AttendanceReportOfAllStudents() {
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Attendance Report of All Students</Text>
+                <View style={{width:200}}>
+                    <Text style={styles.headerTitle}>Attendance Report of All Students</Text>
+                </View>
                 <Ionicons name="notifications-outline" size={24} color="black" />
             </View>
 
@@ -120,10 +123,11 @@ export default function AttendanceReportOfAllStudents() {
             </View>
             <View style={styles.filterContainer}>
                 <View style={styles.filterItem}>
-                    <Text>Year</Text>
-                    <TouchableOpacity onPress={() => {/* Add year selection logic */}}>
-                        <Text style={styles.filterText}>{filters.year} 📅</Text>
-                    </TouchableOpacity>
+
+                    <Text style={styles.label}>Year</Text>
+                    <View style={styles.dateBox}>
+                        <RNDateTimePicker value={new Date()} />
+                    </View>
                 </View>
             </View>
 
@@ -182,4 +186,19 @@ const styles = StyleSheet.create({
     selectedTextStyle: { fontSize: 16, color: '#333' },
     iconStyle: { width: 20, height: 20 },
     classBox: { flex: 1 },
+    dateBox: {
+        display:"flex",
+        backgroundColor: '#fff',
+        padding: 12,
+        borderRadius: 8,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+
+    },
 });

@@ -4,6 +4,7 @@ import {Ionicons} from '@expo/vector-icons';
 import {useNavigation} from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {Dropdown} from 'react-native-element-dropdown';
+import RNDateTimePicker from "@react-native-community/datetimepicker";
 
 export default function AddNewStudentScreen() {
     const navigation = useNavigation();
@@ -59,12 +60,9 @@ export default function AddNewStudentScreen() {
             <Text style={styles.sectionTitle}>Student Basic Information</Text>
 
             <Text style={styles.label}>Date the student entered school</Text>
-            <TouchableOpacity
-                style={styles.input}
-                onPress={() => setShowDatePicker({type: 'enteredSchool', visible: true})}
-            >
-                <Text>{formatDate(dateEnteredSchool)}</Text>
-            </TouchableOpacity>
+            <View style={styles.dateBox}>
+                <RNDateTimePicker value={new Date()}/>
+            </View>
 
             <Text style={styles.label}>Full Name</Text>
             <TextInput style={styles.input} value={fullName} onChangeText={setFullName} placeholder="Full Name"/>
@@ -74,12 +72,9 @@ export default function AddNewStudentScreen() {
                        placeholder="Full Name With Initial"/>
 
             <Text style={styles.label}>Birth of Date</Text>
-            <TouchableOpacity
-                style={styles.input}
-                onPress={() => setShowDatePicker({type: 'birthDate', visible: true})}
-            >
-                <Text>{formatDate(birthDate)}</Text>
-            </TouchableOpacity>
+            <View style={styles.dateBox}>
+                <RNDateTimePicker value={new Date()}/>
+            </View>
 
             {/* Parents Details */}
             <Text style={styles.sectionTitle}>Parents Details</Text>
@@ -178,12 +173,16 @@ export default function AddNewStudentScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50 },
-    headerTitle: { fontSize: 18, fontWeight: '600' },
+    container: {flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20},
+    header: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50},
+    headerTitle: {fontSize: 18, fontWeight: '600'},
     sectionTitle: {fontSize: 16, fontWeight: 'bold', marginBottom: 10, marginTop: 15},
     label: {fontSize: 13, color: '#666', marginBottom: 5},
-    input: {backgroundColor: '#fff', padding: 12, borderRadius: 8, marginBottom: 15},
+    input: {
+        backgroundColor: '#fff', padding: 12, borderRadius: 8, marginBottom: 15, height: 50, shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
     textArea: {height: 80, textAlignVertical: 'top'},
     saveButton: {
         backgroundColor: '#3D4E61',
@@ -197,9 +196,26 @@ const styles = StyleSheet.create({
 
     gradeClassRow: {flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15},
     classAndGradeBox: {flex: 1, borderRadius: 8, marginBottom: 15},
-    inputBox: {backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 5, paddingVertical: 2},
+    inputBox: {backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 5, paddingVertical: 2, shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,},
     dropdown: {height: 40, backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 8},
     placeholderStyle: {fontSize: 14, color: '#999'},
     selectedTextStyle: {fontSize: 14, color: '#000'},
     iconStyle: {width: 20, height: 20},
+    dateBox: {
+        display: "flex",
+        backgroundColor: '#fff',
+        padding: 12,
+        borderRadius: 8,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+
+    },
 });

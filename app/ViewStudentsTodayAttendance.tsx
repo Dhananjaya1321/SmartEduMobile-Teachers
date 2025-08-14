@@ -5,6 +5,7 @@ import {useNavigation, useRouter} from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Animated from 'react-native-reanimated';
 import {Dropdown} from "react-native-element-dropdown";
+import RNDateTimePicker from "@react-native-community/datetimepicker";
 
 const ScrollView = Animated.ScrollView;
 
@@ -88,7 +89,9 @@ export default function ViewStudentsTodayAttendance() {
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={24} color="#333"/>
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Students Today Attendance</Text>
+                <View style={{width:200}}>
+                    <Text style={styles.headerTitle}>Students Today Attendance</Text>
+                </View>
                 <Ionicons name="notifications-outline" size={24} color="#333"/>
             </View>
 
@@ -142,9 +145,9 @@ export default function ViewStudentsTodayAttendance() {
             <View style={styles.filterRow}>
                 <View style={styles.filterItem}>
                     <Text style={styles.label}>Date</Text>
-                    <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                        <Text style={styles.filterText}>{formatDate(date)} 📅</Text>
-                    </TouchableOpacity>
+                    <View style={styles.dateBox}>
+                        <RNDateTimePicker value={new Date()} />
+                    </View>
                 </View>
             </View>
             {showDatePicker && (
@@ -267,5 +270,20 @@ const styles = StyleSheet.create({
     iconStyle: {width: 20, height: 20},
     classBox: {flex: 1},
     errorText: {textAlign: 'center', fontSize: 16, color: 'red', marginTop: 20},
-    flex:{gap:5, display:"flex",flexDirection:"row", justifyContent:"space-around", marginBottom:10}
+    flex:{gap:5, display:"flex",flexDirection:"row", justifyContent:"space-around", marginBottom:10},
+    dateBox: {
+        display:"flex",
+        backgroundColor: '#fff',
+        padding: 12,
+        borderRadius: 8,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+
+    },
 });

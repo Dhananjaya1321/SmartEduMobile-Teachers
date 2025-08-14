@@ -104,7 +104,6 @@
                 <Text style={styles.label}>Date</Text>
                 <View style={styles.dateBox}>
                     <RNDateTimePicker value={new Date()} />
-
                 </View>
 
 
@@ -222,17 +221,19 @@
         headerTitle: { fontSize: 18, fontWeight: '600' },
         label: { fontSize: 16, color: '#444', marginBottom: 8 },
         dateBox: {
+            display:"flex",
             backgroundColor: '#fff',
             padding: 12,
             borderRadius: 8,
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            justifyContent: 'center',
             alignItems: 'center',
             marginBottom: 20,
             elevation: 2,
             shadowColor: '#000',
             shadowOpacity: 0.1,
-            shadowRadius: 4
+            shadowRadius: 4,
+
         },
         dateText: { fontSize: 16, color: '#333' },
         datePicker: { width: '100%', backgroundColor: '#fff' },
@@ -257,7 +258,8 @@
             elevation: 2,
             shadowColor: '#000',
             shadowOpacity: 0.1,
-            shadowRadius: 4
+            shadowRadius: 4,
+
         },
         presentBg: { backgroundColor: '#E6F3E6' },
         absentBg: { backgroundColor: '#F9E4E6' },
