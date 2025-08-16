@@ -6,21 +6,38 @@ import {
     StyleSheet,
     Alert,
     ScrollView,
-    ImageBackground
+    ImageBackground, ActivityIndicator
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import loginAPIController from "@/controllers/LoginController";
 
 export default function ForgotPasswordScreen() {
     const [email, setEmail] = useState('');
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    const handleSendOTP = () => {
+    const handleSendOTP = async () => {
         if (!email || !email.includes('@') || !email.includes('.')) {
             Alert.alert('Error', 'Please enter a valid email address');
             return;
         }
-        router.push('/VerifyCodeScreen');
+
+        setLoading(true);
+        const result = await loginAPIController.checkEmailAndSendOTP(email);
+        setLoading(false);
+
+        if (result.error) {
+            Alert.alert('Failed', result.error);
+        } else {
+            Alert.alert('Success', 'OTP has been sent to your email');
+            // Pass email & otp forward to VerifyCodeScreen
+            router.push({
+                pathname: '/VerifyCodeScreen',
+                params: { email, otp: result.otp }
+            });
+        }
     };
+
 
     return (
         <ImageBackground
@@ -44,8 +61,16 @@ export default function ForgotPasswordScreen() {
                     autoCapitalize="none"
                 />
 
-                <TouchableOpacity style={styles.resetButton} onPress={handleSendOTP}>
-                    <Text style={styles.resetButtonText}>Reset Password</Text>
+                <TouchableOpacity
+                    style={styles.resetButton}
+                    onPress={handleSendOTP}
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={styles.resetButtonText}>Reset Password</Text>
+                    )}
                 </TouchableOpacity>
 
                 <TouchableOpacity
