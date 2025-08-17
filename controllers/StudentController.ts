@@ -35,6 +35,17 @@ const studentAPIController = {
             return null;
         }
     },
+    findClassAllStudentsByClassId: async (classId:any) => {
+        try {
+            const response = await apiClient.get(`/students/other-class-by-class-id/to-teacher/${classId}`);
+            if (response.status === 200 && response.data.state === "OK") {
+                return response.data.data;
+            }
+            return null;
+        } catch (error) {
+            return null;
+        }
+    },
 };
 
 export default studentAPIController;
