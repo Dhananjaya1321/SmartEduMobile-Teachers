@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
-    View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, TextInput, Platform
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    FlatList,
+    Modal,
+    TextInput,
+    Image,
+    Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -25,13 +33,24 @@ export default function AddHomeworkScreen() {
     const [homeworkText, setHomeworkText] = useState("");
 
     useEffect(() => {
-        setTotalHomework(3);
-        setHomeworkList([
-            { id: 1, title: 'Homework 1' },
-            { id: 2, title: 'Homework 2' },
-            { id: 3, title: 'Homework 3' },
-        ]);
-    }, [grade, className, subjects]);
+        fetchData();
+    }, [classId]); // Depend on classId for data fetching
+
+    const fetchData = async () => {
+        try {
+            const response = await homeworksAPIController.getAllHomeworksByClassId(classId);
+            console.log("API Response:", response.data);
+            setTotalHomework(response.data.length);
+            setHomeworkList(response.data.map(item => ({
+                id: item.id,
+                description: item.description,
+                year: item.year,
+                document: item.document, // Ensure document is a Base64 string
+            })));
+        } catch (err) {
+            console.error("Error fetching homework data:", err);
+        }
+    };
 
     const handlePickDocument = async () => {
         try {
@@ -186,18 +205,49 @@ export default function AddHomeworkScreen() {
         </View>
     );
 
+    const renderItem = ({ item }) => {
+        const isValidDataUrl = item.document?.startsWith('data:');
+        const imageSource = isValidDataUrl ? { uri: item.document } : null;
+
+        return (
+            <View style={styles.homeworkItem}>
+                {/* Description */}
+                <Text style={styles.homeworkText}>{item.description || 'No description'}</Text>
+
+                {/* Year */}
+                <Text style={styles.yearText}>Year: {item.year || 'N/A'}</Text>
+
+                {/* Document/Image */}
+                {item.document && (
+                    Platform.OS === 'web' ? (
+                        <img
+                            src={item.document}
+                            alt="document"
+                            style={{ width: '100%', objectFit: 'contain', borderRadius: 8 }}
+                        />
+                    ) : (
+                        imageSource ? (
+                            <Image
+                                source={imageSource}
+                                style={styles.image}
+                                resizeMode="contain"
+                            />
+                        ) : (
+                            <Text style={styles.errorText}>Invalid document format</Text>
+                        )
+                    )
+                )}
+            </View>
+        );
+    };
+
     return (
         <View style={{ flex: 1 }}>
             <FlatList
                 style={styles.container}
                 data={homeworkList}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.homeworkItem}>
-                        <Text style={styles.homeworkText}>{item.title}</Text>
-                        {item.file && <Text style={styles.fileText}>📎 {item.file.name}</Text>}
-                    </View>
-                )}
+                keyExtractor={(item) => item.id?.toString() || Math.random().toString()} // Ensure unique keys
+                renderItem={renderItem}
                 ListHeaderComponent={renderHeader}
                 contentContainerStyle={styles.homeworkList}
                 showsVerticalScrollIndicator={false}
@@ -215,7 +265,7 @@ export default function AddHomeworkScreen() {
 
                         <TextInput
                             style={styles.input}
-                            placeholder="Enter homework title"
+                            placeholder="Enter homework description"
                             value={homeworkText}
                             onChangeText={setHomeworkText}
                         />
@@ -254,13 +304,14 @@ const styles = StyleSheet.create({
     totalHomework: { fontSize: 16, fontWeight: 'bold', marginBottom: 15 },
     addButton: { backgroundColor: '#E0E0E0', padding: 10, borderRadius: 5, marginBottom: 15, alignItems: 'center' },
     addButtonText: { fontSize: 14, fontWeight: 'bold' },
-    homeworkList: { fontSize: 14, color: '#555', marginBottom: 10 },
-    homeworkItem: { backgroundColor: '#D3D3D3', height: 150, borderRadius: 5, marginBottom: 10, justifyContent: 'center', alignItems: 'center' },
-    homeworkText: { fontSize: 16, color: '#fff' },
-    fileText: { fontSize: 12, color: '#000', marginTop: 5 },
-    totalClassesView: { display: "flex", flexDirection: "row", justifyContent: "space-between" },
+    homeworkList: { fontSize: 14, color: '#555', marginBottom: 10, paddingBottom: 20 },
+    homeworkItem: { borderColor: '#00d0ff', borderWidth: 1, backgroundColor: '#ffffff', borderRadius: 5, marginBottom: 10, padding: 10, alignItems: 'flex-start' },
+    homeworkText: { fontSize: 16, color: '#000000', marginBottom: 5 },
+    yearText: { fontSize: 12, color: '#000', marginBottom: 5 }, // Adjusted size for better readability
+    image: { width: '100%', height: 850, borderRadius: 8 }, // Explicit dimensions for mobile
+    errorText: { color: 'red', fontSize: 12, textAlign: 'center' },
     modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-    modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '90%' },
+    modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '90%', maxWidth: 400 },
     modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15 },
     input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 10, marginBottom: 15 },
     fileButton: { backgroundColor: '#e0e0e0', padding: 10, borderRadius: 5, alignItems: 'center', marginBottom: 15 },
@@ -269,5 +320,6 @@ const styles = StyleSheet.create({
     cancelButton: { marginRight: 10, padding: 10 },
     cancelButtonText: { color: '#999' },
     saveButton: { backgroundColor: '#4CAF50', padding: 10, borderRadius: 5 },
-    saveButtonText: { color: '#fff', fontWeight: 'bold' }
+    saveButtonText: { color: '#fff', fontWeight: 'bold' },
+    totalClassesView: { display:"flex",flexDirection:"row",justifyContent:"space-between"},
 });

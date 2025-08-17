@@ -12,6 +12,17 @@ const homeworksAPIController = {
             return null;
         }
     },
+    getAllHomeworksByClassId: async (classId:any) => {
+        try {
+            const response = await apiClient.get(`/homeworks/class/${classId}`);
+            if (response.status === 200 && response.data.state === "OK") {
+                return response.data;
+            }
+            return null;
+        } catch (error) {
+            return null;
+        }
+    },
 };
 
 export default homeworksAPIController;
