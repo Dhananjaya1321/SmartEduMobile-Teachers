@@ -24,9 +24,9 @@ const studentAPIController = {
             return null;
         }
     },
-    findStudentToTeacher: async () => {
+    findMyClassAllStudents: async () => {
         try {
-            const response = await apiClient.get(`/students/to-parents`);
+            const response = await apiClient.get(`/students/my-class/to-teacher`);
             if (response.status === 200 && response.data.state === "OK") {
                 return response.data.data;
             }
