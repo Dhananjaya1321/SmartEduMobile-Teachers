@@ -35,7 +35,7 @@ export default function OtherClassesITaughtScreen() {
     const handleClassPress = (item) => {
         router.push({
             pathname: '/OtherClassStudentsScreen',
-            params: { grade: item.grade, class: item.class, year: '2021' },
+            params: { gradeId:item.id, grade: item.gradeName, classId:item.classRooms[0].id,class: item.classRooms[0].className, year: year },
         });
     };
 
