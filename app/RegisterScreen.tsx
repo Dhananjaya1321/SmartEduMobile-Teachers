@@ -149,7 +149,6 @@ export default function RegisterScreen() {
                 value: s.id
             })));
         } catch (error) {
-            console.error("Error fetching schools:", error);
             Alert.alert("Error", "Failed to load schools.");
         }
     };
