@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 
 export default function AddHomeworkScreen() {
-    const { grade, class: className, subject, year } = useLocalSearchParams();
+    const { gradeId,grade,classId, class: className, subjects, year } = useLocalSearchParams();
     const [totalHomework, setTotalHomework] = useState(0);
     const [homeworkList, setHomeworkList] = useState([]);
 
@@ -15,7 +15,7 @@ export default function AddHomeworkScreen() {
             { id: 2, title: 'Homework 2' },
             { id: 3, title: 'Homework 3' },
         ]);
-    }, [grade, className, subject]);
+    }, [grade, className, subjects]);
 
     const renderHeader = () => (
         <View>
@@ -50,9 +50,9 @@ export default function AddHomeworkScreen() {
                     </View>
                 </View>
                 <View style={styles.infoBox}>
-                    <Text style={styles.infoLabel}>Subject</Text>
+                    <Text style={styles.infoLabel}>Subjects</Text>
                     <View style={styles.infoValueBox}>
-                        <Text style={styles.infoValue}>{subject}</Text>
+                        <Text style={styles.infoValue}>{subjects}</Text>
                     </View>
                 </View>
             </View>
