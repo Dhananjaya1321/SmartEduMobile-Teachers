@@ -21,7 +21,6 @@ const periodTimes = [
     "09:05 A.M. - 09:40 A.M.",
     "09:40 A.M. - 10:15 A.M.",
     "10:15 A.M. - 10:50 A.M.",
-    "10:50 A.M. - 11:10 A.M.", // Interval
     "11:10 A.M. - 11:45 A.M.",
     "11:45 A.M. - 12:20 P.M.",
     "12:20 P.M. - 12:55 P.M.",
@@ -41,7 +40,6 @@ export default function MyClassSchedule() {
             try {
                 setLoading(true);
                 const response = await classTimetablesAPIController.findMyClassesTimetableToTeacher();
-                console.log("Backend response:", response);
 
                 const weekly: Record<string, any[]> = {};
                 days.forEach(day => {
@@ -193,8 +191,8 @@ const styles = StyleSheet.create({
     },
     scheduleDay: {fontSize: 16, fontWeight: 'bold', marginBottom: 5},
     scheduleTable: {flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5},
-    scheduleTime: {fontSize: 14, color: '#444'},
-    scheduleGrade: {fontSize: 14, color: '#444'},
+    scheduleTime: { fontSize: 14, color: '#444', width:150 },
+    scheduleGrade: {fontSize: 14, color: '#444', width:150 },
     dayHeader: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'},
     errorText: {textAlign: 'center', fontSize: 16, color: 'red', marginTop: 20},
     noScheduleText: {textAlign: 'center', fontSize: 14, color: '#666', marginTop: 5}

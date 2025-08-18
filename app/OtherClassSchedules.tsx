@@ -1,85 +1,143 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator} from 'react-native';
-import {Ionicons} from '@expo/vector-icons';
-import {useNavigation} from 'expo-router';
-import Animated, {SlideInDown} from 'react-native-reanimated';
-import {Dropdown} from "react-native-element-dropdown";
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { Dropdown } from 'react-native-element-dropdown';
+import classTimetablesAPIController from '@/controllers/ClassTimetablesController';
+import gradeAPIController from '@/controllers/GradesController';
 
-const ScrollView = Animated.ScrollView;
+// Predefined standard periods
+const PERIODS = [
+    '08:30 A.M. - 09:05 A.M.',
+    '09:05 A.M. - 09:40 A.M.',
+    '09:40 A.M. - 10:15 A.M.',
+    '10:15 A.M. - 10:50 A.M.',
+    '11:10 A.M. - 11:45 A.M.',
+    '11:45 A.M. - 12:20 P.M.',
+    '12:20 P.M. - 12:55 P.M.',
+    '12:55 P.M. - 01:30 P.M.',
+];
 
-export default function OtherClassSchedules() {
-    const navigation = useNavigation();
-    const [view, setView] = useState('weekly');
-    const [schedule, setSchedule] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [expandedDays, setExpandedDays] = useState(new Set());
-    const [grade, setGrade] = useState('Grade - 10');
-    const [className, setClassName] = useState('Class - A');
+export default function TimeTableScreen() {
+    const [expandedDay, setExpandedDay] = useState<string | null>('Monday');
+    const [loading, setLoading] = useState(false);
+    const [timeTableData, setTimeTableData] = useState<any>({ weekly: {} });
+    const [grades, setGrades] = useState<any[]>([]);
+    const [classes, setClasses] = useState<any[]>([]);
+    const [selectedGrade, setSelectedGrade] = useState<string | null>(null);
+    const [selectedClass, setSelectedClass] = useState<string | null>(null);
+    const router = useRouter();
+
+    // Fetch grades and classes
+    const fetchGradesAndClasses = async () => {
+        try {
+            const response = await gradeAPIController.getAllGrades();
+            const gradeOptions = response.data.map((g: any) => ({
+                label: `Grade ${g.gradeName}`,
+                value: g.id,
+                classRooms: g.classRooms ?? [],
+            }));
+            setGrades(gradeOptions);
+        } catch (error) {
+            console.error('Error loading grades:', error);
+        }
+    };
+
+    const handleGradeSelect = (gradeId: string) => {
+        setSelectedGrade(gradeId);
+        const selected = grades.find((g) => g.value === gradeId);
+        if (selected && selected.classRooms.length > 0) {
+            const classOptions = selected.classRooms.map((c: any) => ({
+                label: c.className,
+                value: c.id,
+            }));
+            setClasses(classOptions);
+        } else {
+            setClasses([]);
+        }
+        setSelectedClass(null); // Reset class when grade changes
+    };
+
+    // Fetch timetable
+    const handleSearch = async () => {
+        if (!selectedClass) return;
+        setLoading(true);
+
+        try {
+            const res = await classTimetablesAPIController.findOtherClassesTimetableToTeacherByClassId(selectedClass);
+
+            // Prepare structure with all periods
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+            const weekly: Record<string, any[]> = {};
+            days.forEach(day => {
+                weekly[day] = [];
+            });
+
+            PERIODS.forEach((time, periodIndex) => {
+                const period = periodIndex + 1;
+                days.forEach((day, idx) => {
+                    const periodData = res.timetablePeriods.find((p: any) => p.period === period);
+                    if (time === '10:50 A.M. - 11:10 A.M.') {
+                        // Forcefully add interval from frontend
+                        weekly[day].push({
+                            time,
+                            subject: 'Interval',
+                            teacher: '',
+                            highlight: true,
+                        });
+                    } else if (periodData && periodData.slots[idx]) {
+                        const slot = periodData.slots[idx];
+                        weekly[day].push({
+                            time,
+                            subject: slot.subject || 'Unknown',
+                            teacher: slot.teacherName || 'N/A',
+                        });
+                    } else {
+                        weekly[day].push({
+                            time,
+                            subject: '-',
+                            teacher: '-',
+                        });
+                    }
+                });
+            });
+
+            setTimeTableData({ weekly });
+        } catch (error) {
+            console.error('Error fetching timetable:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchScheduleData = async () => {
-            try {
-                setLoading(true);
-                // Replace with actual API call
-                // const response = await fetch('your-backend-api/schedule');
-                // const data = await response.json();
-                const sampleData = {
-                    weekly: {
-                        Monday: [],
-                        Tuesday: [
-                            {time: '08:30 A.M. - 09:05 A.M.', gradeClass: 'Grade 10 - A'},
-                            {time: '09:05 A.M. - 09:40 A.M.', gradeClass: 'Grade 10 - A'},
-                            {time: '09:40 A.M. - 10:15 A.M.', gradeClass: 'Grade 9 - E'},
-                            {time: '10:15 A.M. - 10:50 A.M.', gradeClass: 'Grade 8 - C'},
-                            {time: '10:50 A.M. - 11:10 A.M.', gradeClass: 'Interval'},
-                            {time: '11:10 A.M. - 11:45 A.M.', gradeClass: 'Grade 7 - B'},
-                            {time: '11:45 A.M. - 12:20 P.M.', gradeClass: 'Grade 7 - B'},
-                        ],
-                        Wednesday: [],
-                        Thursday: [],
-                        Friday: [],
-                    }
-                };
-                setSchedule(sampleData);
-            } catch (err) {
-                setError('Failed to load schedule data.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchScheduleData();
+        fetchGradesAndClasses();
     }, []);
 
-    const toggleDay = (day) => {
-        const newExpandedDays = new Set(expandedDays);
-        if (newExpandedDays.has(day)) {
-            newExpandedDays.delete(day);
-        } else {
-            newExpandedDays.add(day);
-        }
-        setExpandedDays(newExpandedDays);
+    const toggleDay = (day: string) => {
+        setExpandedDay(expandedDay === day ? null : day);
     };
 
     if (loading) {
-        return <View style={styles.container}><ActivityIndicator size="large" color="#0000ff"/></View>;
-    }
-
-    if (error) {
-        return <View style={styles.container}><Text style={styles.errorText}>{error}</Text></View>;
+        return (
+            <View style={styles.loaderContainer}>
+                <ActivityIndicator size="large" color="#000" />
+            </View>
+        );
     }
 
     return (
         <ScrollView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={24} color="#333"/>
+                <TouchableOpacity onPress={() => router.back()}>
+                    <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>My Class Schedule</Text>
-                <Ionicons name="notifications-outline" size={24} color="#333"/>
+                <Text style={styles.headerTitle}>Class Timetable</Text>
+                <Ionicons name="notifications-outline" size={24} color="black" />
             </View>
 
+            {/* Dropdowns */}
             <View style={styles.gradeClassRow}>
                 <View style={styles.gradeBox}>
                     <Text style={styles.label}>Grade</Text>
@@ -89,17 +147,12 @@ export default function OtherClassSchedules() {
                             placeholderStyle={styles.placeholderStyle}
                             selectedTextStyle={styles.selectedTextStyle}
                             iconStyle={styles.iconStyle}
-                            data={[
-                                { label: 'Grade - 10', value: 'Grade - 10' },
-                                { label: 'Grade - 11', value: 'Grade - 11' },
-                                { label: 'Grade - 12', value: 'Grade - 12' },
-                                { label: 'Grade - 13', value: 'Grade - 13' },
-                            ]}
+                            data={grades}
                             maxHeight={300}
                             labelField="label"
                             valueField="value"
-                            value={grade}
-                            onChange={item => setGrade(item.value)}
+                            value={selectedGrade}
+                            onChange={(item) => handleGradeSelect(item.value)}
                         />
                     </View>
                 </View>
@@ -111,93 +164,122 @@ export default function OtherClassSchedules() {
                             placeholderStyle={styles.placeholderStyle}
                             selectedTextStyle={styles.selectedTextStyle}
                             iconStyle={styles.iconStyle}
-                            data={[
-                                { label: 'Class - A', value: 'Class - A' },
-                                { label: 'Class - B', value: 'Class - B' },
-                                { label: 'Class - C', value: 'Class - C' },
-                                { label: 'Class - D', value: 'Class - D' },
-                            ]}
+                            data={classes}
                             maxHeight={300}
                             labelField="label"
                             valueField="value"
-                            value={className}
-                            onChange={item => setClassName(item.value)}
+                            value={selectedClass}
+                            onChange={(item) => setSelectedClass(item.value)}
+                            disable={classes.length === 0}
                         />
                     </View>
                 </View>
             </View>
 
             {/* Search Button */}
-            <TouchableOpacity style={styles.searchButton} onPress={() => {}}>
+            <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
                 <Text style={styles.searchButtonText}>Search</Text>
             </TouchableOpacity>
 
-            {view === 'weekly' && (
-                <View entering={SlideInDown}>
-                    {Object.keys(schedule.weekly).map((day) => (
-                        <View key={day} style={styles.scheduleItem}>
-                            <TouchableOpacity onPress={() => toggleDay(day)} style={styles.dayHeader}>
-                                <Text style={styles.scheduleDay}>{day}</Text>
-                                <Ionicons
-                                    name={expandedDays.has(day) ? 'remove-circle-outline' : 'add-circle-outline'}
-                                    size={20}
-                                    color="#333"
-                                />
-                            </TouchableOpacity>
-                            {expandedDays.has(day) && schedule.weekly[day].length > 0 && (
-                                <FlatList
-                                    data={schedule.weekly[day]}
-                                    keyExtractor={(item, index) => index.toString()}
-                                    renderItem={({item}) => (
-                                        <View style={styles.scheduleTable}>
-                                            <Text style={styles.scheduleTime}>{item.time}</Text>
-                                            <Text style={styles.scheduleGrade}>{item.gradeClass}</Text>
-                                        </View>
-                                    )}
-                                />
-                            )}
-                        </View>
-                    ))}
-                </View>
-            )}
+            {/* Timetable */}
+            <ScrollView showsVerticalScrollIndicator={false}>
+                {Object.keys(timeTableData.weekly).map((day) => (
+                    <View key={day} style={styles.dayContainer}>
+                        {/* Day Header */}
+                        <TouchableOpacity style={styles.dayHeader} onPress={() => toggleDay(day)}>
+                            <Text style={styles.dayTitle}>{day}</Text>
+                            <Ionicons
+                                name={expandedDay === day ? 'remove-circle-outline' : 'add-circle-outline'}
+                                size={24}
+                                color="gray"
+                            />
+                        </TouchableOpacity>
+
+                        {/* Time Table Rows */}
+                        {expandedDay === day && timeTableData.weekly[day].length > 0 && (
+                            <View style={styles.table}>
+                                <View style={styles.tableHeader}>
+                                    <Text style={styles.tableHeaderText}>Time</Text>
+                                    <Text style={styles.tableHeaderText}>Subject</Text>
+                                    <Text style={styles.tableHeaderText}>Teacher</Text>
+                                </View>
+                                {timeTableData.weekly[day].map((item, index) => (
+                                    <View
+                                        key={index}
+                                        style={[
+                                            styles.tableRow,
+                                            item.highlight && { backgroundColor: '#FFF3CD' },
+                                        ]}
+                                    >
+                                        <Text style={styles.tableCell}>{item.time}</Text>
+                                        <Text style={[styles.tableCell, item.highlight && { fontWeight: 'bold' }]}>
+                                            {item.subject}
+                                        </Text>
+                                        <Text style={styles.tableCell}>{item.teacher}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        )}
+                    </View>
+                ))}
+            </ScrollView>
         </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50 },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 30,
+    },
     headerTitle: { fontSize: 18, fontWeight: '600' },
-    tabContainer: {flexDirection: 'row', marginBottom: 20, gap:10, display:"flex", justifyContent:"center",alignItems:"center",textAlign:"center"},
-    tab: {height:50, flex: 1, padding: 10, borderRadius: 5, alignItems: 'center', backgroundColor: '#E0E0E0', display:"flex", justifyContent:"center",textAlign:"center"},
-    activeTab: {height:50, backgroundColor: '#4a5e7a',display:"flex", justifyContent:"center",alignItems:"center",textAlign:"center"},
-    tabText: {fontWeight: 'bold',fontSize: 16, color: '#333',display:"flex", justifyContent:"center",alignItems:"center",textAlign:"center"},
-    activeTabText: {color: '#fff', fontWeight: 'bold',display:"flex", justifyContent:"center",alignItems:"center",textAlign:"center"},
-    scheduleItem: {
+    loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    gradeClassRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+    gradeBox: { flex: 1, marginRight: 10 },
+    classBox: { flex: 1 },
+    label: { fontSize: 16, color: '#444', marginBottom: 8 },
+    inputBox: {
         backgroundColor: '#fff',
-        padding: 10,
-        borderRadius: 5,
-        marginBottom: 10,
+        padding: 12,
+        borderRadius: 8,
         elevation: 2,
         shadowColor: '#000',
         shadowOpacity: 0.1,
-        shadowRadius: 4
+        shadowRadius: 4,
     },
-    scheduleDay: {fontSize: 16, fontWeight: 'bold', marginBottom: 5},
-    scheduleTable: {flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5},
-    scheduleTime: {fontSize: 14, color: '#444'},
-    scheduleGrade: {fontSize: 14, color: '#444'},
-    dayHeader: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'},
-    errorText: {textAlign: 'center', fontSize: 16, color: 'red', marginTop: 20},
-    inputBox: { backgroundColor: '#fff', padding: 12, borderRadius: 8, elevation: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4 },
-    dropdown: {backgroundColor: 'transparent' },
-    gradeClassRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-    gradeBox: { flex: 1, marginRight: 10 },
-    label: { fontSize: 16, color: '#444', marginBottom: 8 },
+    dropdown: { backgroundColor: 'transparent' },
     placeholderStyle: { fontSize: 16, color: '#888' },
     selectedTextStyle: { fontSize: 16, color: '#333' },
     iconStyle: { width: 20, height: 20 },
-    classBox: { flex: 1 },
-    searchButton: { backgroundColor: '#4a5e7a', padding: 10, borderRadius: 5, marginBottom: 50 },
+    searchButton: { backgroundColor: '#4a5e7a', padding: 12, borderRadius: 5, marginBottom: 30 },
     searchButtonText: { color: '#fff', textAlign: 'center', fontWeight: 'bold' },
+    dayContainer: { marginBottom: 10 },
+    dayHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        backgroundColor: '#fff',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    dayTitle: { fontSize: 16, fontWeight: 'bold' },
+    table: { backgroundColor: '#fff', borderRadius: 10, marginTop: 5, overflow: 'hidden' },
+    tableHeader: {
+        flexDirection: 'row',
+        backgroundColor: '#F0F0F0',
+        padding: 10,
+        justifyContent: 'space-around',
+    },
+    tableHeaderText: { flex: 1, fontWeight: 'bold', textAlign: 'center' },
+    tableRow: {
+        flexDirection: 'row',
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+        justifyContent: 'space-around',
+    },
+    tableCell: { flex: 1, textAlign: 'center' },
 });

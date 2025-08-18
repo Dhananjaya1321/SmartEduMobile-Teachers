@@ -14,7 +14,7 @@ const classTimetablesAPIController = {
     },
     findOtherClassesTimetableToTeacherByClassId: async (classId:any) => {
         try {
-            const response = await apiClient.get(`/timetables/other-classes/to-teacher/{classId}`);
+            const response = await apiClient.get(`/timetables/other-classes/to-teacher/${classId}`);
             if (response.status === 200 && response.data.state === "OK") {
                 return response.data.data;
             }

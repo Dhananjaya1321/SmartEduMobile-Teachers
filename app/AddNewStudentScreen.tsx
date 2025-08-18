@@ -111,7 +111,6 @@ export default function AddNewStudentScreen() {
         };
 
         const response = await studentAPIController.saveStudent(studentData);
-        console.log(response)
         if (response){
             setDateEnteredSchool(new Date())
             setFullName('');
