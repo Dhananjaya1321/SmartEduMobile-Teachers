@@ -13,7 +13,7 @@ const attendanceAPIController = {
     },
     getAllAttendanceByClassId: async (classId:any) => {
         try {
-            const response = await apiClient.get(`/attendance/class/${classId}`);
+            const response = await apiClient.get(`/attendance/class/today/${classId}`);
             if (response.status === 200 && response.data.state === "OK") {
                 return response.data;
             }
