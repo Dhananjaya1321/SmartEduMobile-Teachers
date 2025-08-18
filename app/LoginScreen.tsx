@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
 import loginAPIController from "@/controllers/LoginController";
+import jwtDecode from "jwt-decode";
 
 export default function LoginScreen() {
     const [username, setUsername] = useState('');
@@ -21,14 +22,35 @@ export default function LoginScreen() {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    // Check login status on mount
+
     useEffect(() => {
         const checkLoginStatus = async () => {
-            const user = await AsyncStorage.getItem('user');
-            if (user) router.replace('/');
+            const token = await AsyncStorage.getItem("token");
+            if (!token) return;
+
+            try {
+                const decoded = jwtDecode(token);
+                const currentTime = Date.now() / 1000;
+
+                if (decoded.exp < currentTime) {
+                    // Expired -> clear and redirect
+                    await AsyncStorage.removeItem("token");
+                    await AsyncStorage.removeItem("user");
+                    router.replace("/LoginScreen");
+                } else {
+                    router.replace("/"); // Token valid -> go to dashboard
+                }
+            } catch (e) {
+                // Invalid token -> force logout
+                await AsyncStorage.removeItem("token");
+                await AsyncStorage.removeItem("user");
+                router.replace("/LoginScreen");
+            }
         };
+
         checkLoginStatus();
     }, []);
+
 
     const handleLogin = async () => {
         if (!username || !password) {
