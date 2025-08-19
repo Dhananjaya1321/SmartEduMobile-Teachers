@@ -22,6 +22,17 @@ const attendanceAPIController = {
             return null;
         }
     },
+    getAllAttendanceByStudentId: async (studentId:any) => {
+        try {
+            const response = await apiClient.get(`/attendance/class/by-student-id/${studentId}`);
+            if (response.status === 200 && response.data.state === "OK") {
+                return response.data;
+            }
+            return null;
+        } catch (error) {
+            return null;
+        }
+    },
 };
 
 export default attendanceAPIController;

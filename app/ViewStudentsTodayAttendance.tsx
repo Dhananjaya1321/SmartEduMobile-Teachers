@@ -20,7 +20,7 @@ export default function ViewStudentsTodayAttendance() {
     const router = useRouter();
     const [grade, setGrade] = useState('Grade - 10');
     const [className, setClassName] = useState('Class - A');
-    const [date, setDate] = useState(new Date('2021-02-02'));
+    const [date, setDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [students, setStudents] = useState([]);
     const [summary, setSummary] = useState({totalStudents: 0, presentStudents: 0, absentStudents: 0});

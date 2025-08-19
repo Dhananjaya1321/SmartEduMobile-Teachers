@@ -3,6 +3,9 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, ScrollVi
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRouter } from 'expo-router';
 import {Dropdown} from "react-native-element-dropdown";
+import gradeAPIController from "@/controllers/GradesController";
+import studentAPIController from "@/controllers/StudentController";
+import attendanceAPIController from "@/controllers/AttendanceController";
 
 // Placeholder for backend data
 interface AttendanceSummary {
@@ -27,110 +30,93 @@ export default function ViewAttendanceScreen() {
     const [grade, setGrade] = useState('Grade - 10');
     const [className, setClassName] = useState('Class - A');
     const [studentName, setStudentName] = useState('');
-    const [year, setYear] = useState('2021');
+    const [date, setDate] = useState(new Date());
     const [expandedMonth, setExpandedMonth] = useState<string | null>('October 2021');
-    const [attendanceData, setAttendanceData] = useState<AttendanceData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [grades, setGrades] = useState<any[]>([]);
+    const [classes, setClasses] = useState<any[]>([]);
+    const [students, setStudents] = useState<any[]>([]);
+    const [selectedGrade, setSelectedGrade] = useState<string | null>(null);
+    const [selectedClass, setSelectedClass] = useState<string | null>(null);
+    const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
+    const [totalDays, setTotalDays] = useState(0);
+    const [attendedDays, setAttendedDays] = useState(0);
+    const [absentDays, setAbsentDays] = useState(0);
+    const [attendanceRate, setAttendanceRate] = useState(0);
+    const [studentDetails, setStudentDetails] = useState<any[]>([]);
 
-    // Fetch data from backend
-    useEffect(() => {
-        const fetchAttendance = async () => {
-            try {
-                setLoading(true);
-                // Replace with actual API call
-                // const response = await fetch(`your-backend-api-endpoint?grade=${grade}&class=${className}&student=${studentName}&year=${year}`);
-                // const data = await response.json();
-                // setAttendanceData(data);
-                setAttendanceData({
-                    summary: {
-                        totalDays: 226,
-                        attendedDays: 215,
-                        absentDays: 11,
-                        attendanceRate: '95%',
-                    },
-                    months: [
-                        {
-                            month: 'October 2021',
-                            days: [
-                                { day: 1, present: false },
-                                { day: 2, present: true },
-                                { day: 3, present: true },
-                                { day: 4, present: true },
-                                { day: 5, present: true },
-                                { day: 6, present: true },
-                                { day: 7, present: true },
-                                { day: 8, present: true },
-                                { day: 9, present: true },
-                                { day: 10, present: true },
-                                { day: 11, present: true },
-                                { day: 12, present: true },
-                                { day: 13, present: true },
-                                { day: 14, present: true },
-                                { day: 15, present: true },
-                                { day: 16, present: true },
-                                { day: 17, present: true },
-                                { day: 18, present: true },
-                                { day: 19, present: true },
-                                { day: 20, present: true },
-                                { day: 21, present: true },
-                                { day: 22, present: false },
-                                { day: 23, present: true },
-                                { day: 24, present: true },
-                                { day: 25, present: true },
-                                { day: 26, present: true },
-                                { day: 27, present: true },
-                                { day: 28, present: true },
-                                { day: 29, present: true },
-                                { day: 30, present: true },
-                                { day: 31, present: true },
-                            ],
-                        },
-                    ],
-                });
-            } catch (err) {
-                setError('Failed to load attendance data.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchAttendance();
-    }, [grade, className, studentName, year]);
-
-    const toggleMonth = (month: string) => {
-        setExpandedMonth(expandedMonth === month ? null : month);
+    const fetchGradesAndClasses = async () => {
+        try {
+            const response = await gradeAPIController.getAllGrades();
+            const gradeOptions = response.data.map((g: any) => ({
+                label: `Grade ${g.gradeName}`,
+                value: g.id,
+                classRooms: g.classRooms ?? [],
+            }));
+            setGrades(gradeOptions);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error loading grades:', error);
+        }
     };
 
-    const renderCalendar = (days: AttendanceDay[]) => {
-        const weeks = [];
-        for (let i = 0; i < days.length; i += 7) {
-            weeks.push(days.slice(i, i + 7));
+    const handleGradeSelect = (gradeId: string) => {
+        setSelectedGrade(gradeId);
+        const selected = grades.find((g) => g.value === gradeId);
+        if (selected && selected.classRooms.length > 0) {
+            const classOptions = selected.classRooms.map((c: any) => ({
+                label: c.className,
+                value: c.id,
+            }));
+            setClasses(classOptions);
+        } else {
+            setClasses([]);
         }
-        return (
-            <FlatList
-                data={weeks}
-                keyExtractor={(_, index) => index.toString()}
-                renderItem={({ item: week }) => (
-                    <View style={styles.calendarRow}>
-                        {week.map((day) => (
-                            <View key={day.day} style={styles.calendarDayContainer}>
-                                <Text style={[styles.calendarDay, day.present ? styles.presentDay : styles.absentDay]}>
-                                    {day.day}
-                                </Text>
-                            </View>
-                        ))}
-                    </View>
-                )}
-            />
-        );
+        setSelectedClass(null); // Reset class when grade changes
+    };
+
+    useEffect(() => {
+        fetchGradesAndClasses();
+    }, []);
+
+    const handleSelectClass =async (classId: string) => {
+        setSelectedClass(classId)
+        const response =  await studentAPIController.findClassAllStudentsByClassId(classId);
+        const studentsOptions = response.map((s: any) => ({
+            label: `${s.fullNameWithInitials} - (${s.registrationNumber})`,
+            value: s.id,
+        }));
+        setStudents(studentsOptions);
+    };
+
+
+    const handleSelectStudent = async (studentId: string) => {
+        setSelectedStudent(studentId);
+        try {
+            const response = await attendanceAPIController.getAllAttendanceByStudentId(studentId);
+            console.log(response.data.length);
+            setStudentDetails(response);
+
+            // Calculate attendance metrics
+            const total = response.data.length;
+            const attended = response.data.filter((day: any) => day.present).length;
+            const absent = total - attended;
+            const rate = total > 0 ? ((attended / total) * 100).toFixed(2) + '%' : '0%';
+
+            // Set state values
+            setTotalDays(total);
+            setAttendedDays(attended);
+            setAbsentDays(absent);
+            setAttendanceRate(rate);
+        } catch (error) {
+            console.error('Error fetching attendance:', error);
+            setError('Failed to load attendance data');
+        }
     };
 
     if (loading) {
         return <View style={styles.container}><ActivityIndicator size="large" color="#0000ff" /></View>;
-    }
-
-    if (error || !attendanceData) {
-        return <View style={styles.container}><Text style={styles.errorText}>{error || 'Data not found.'}</Text></View>;
     }
 
     return (
@@ -152,17 +138,12 @@ export default function ViewAttendanceScreen() {
                             placeholderStyle={styles.placeholderStyle}
                             selectedTextStyle={styles.selectedTextStyle}
                             iconStyle={styles.iconStyle}
-                            data={[
-                                { label: 'Grade - 10', value: 'Grade - 10' },
-                                { label: 'Grade - 11', value: 'Grade - 11' },
-                                { label: 'Grade - 12', value: 'Grade - 12' },
-                                { label: 'Grade - 13', value: 'Grade - 13' },
-                            ]}
+                            data={grades}
                             maxHeight={300}
                             labelField="label"
                             valueField="value"
-                            value={grade}
-                            onChange={item => setGrade(item.value)}
+                            value={selectedGrade}
+                            onChange={(item) => handleGradeSelect(item.value)}
                         />
                     </View>
                 </View>
@@ -174,99 +155,56 @@ export default function ViewAttendanceScreen() {
                             placeholderStyle={styles.placeholderStyle}
                             selectedTextStyle={styles.selectedTextStyle}
                             iconStyle={styles.iconStyle}
-                            data={[
-                                { label: 'Class - A', value: 'Class - A' },
-                                { label: 'Class - B', value: 'Class - B' },
-                                { label: 'Class - C', value: 'Class - C' },
-                                { label: 'Class - D', value: 'Class - D' },
-                            ]}
+                            data={classes}
                             maxHeight={300}
                             labelField="label"
                             valueField="value"
-                            value={className}
-                            onChange={item => setClassName(item.value)}
+                            value={selectedClass}
+                            onChange={(item) => handleSelectClass(item.value)}
+                            disable={classes.length === 0}
                         />
                     </View>
                 </View>
             </View>
 
-            <Text style={styles.label}>Student Name</Text>
-            <View style={styles.searchBox}>
-                <Ionicons name="search" size={20} color="#555" style={styles.searchIcon} />
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search"
-                    value={studentName}
-                    onChangeText={setStudentName}
-                />
-            </View>
-
-            <View style={styles.yearRow}>
-                <TouchableOpacity style={styles.yearBox}>
-                    <Text>{year}</Text>
-                    <Ionicons name="calendar-outline" size={20} color="#555" />
-                </TouchableOpacity>
-                <View style={styles.yearBox}>
-                    <Text>{grade}</Text>
-                </View>
-                <View style={styles.yearBox}>
-                    <Text>{className}</Text>
+            <View style={styles.classBox}>
+                <Text style={styles.label}>Select Student</Text>
+                <View style={styles.inputBox}>
+                    <Dropdown
+                        style={styles.dropdown}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        iconStyle={styles.iconStyle}
+                        data={students}
+                        maxHeight={300}
+                        labelField="label"
+                        valueField="value"
+                        value={selectedStudent}
+                        onChange={(item) => handleSelectStudent(item.value)}
+                        disable={classes.length === 0}
+                    />
                 </View>
             </View>
 
             <View style={styles.summarySection}>
-                <Text style={styles.summaryTitle}>Summary</Text>
+                <Text style={styles.summaryTitle}>Summary ({date.toLocaleDateString()})</Text>
                 <View style={styles.summaryRow}>
                     <Text>Total number of days school was in session this year</Text>
-                    <Text style={styles.summaryValue}>{attendanceData.summary.totalDays}</Text>
+                    <Text style={styles.summaryValue}>{totalDays}</Text>
                 </View>
                 <View style={styles.summaryRow}>
                     <Text>Total number of days attended</Text>
-                    <Text style={styles.summaryValue}>{attendanceData.summary.attendedDays}</Text>
+                    <Text style={styles.summaryValue}>{attendedDays}</Text>
                 </View>
                 <View style={styles.summaryRow}>
                     <Text>Total number of days absent from school</Text>
-                    <Text style={styles.summaryValue}>{attendanceData.summary.absentDays}</Text>
+                    <Text style={styles.summaryValue}>{absentDays}</Text>
                 </View>
                 <View style={styles.summaryRow}>
                     <Text>Student attendance rate</Text>
-                    <Text style={styles.summaryValue}>{attendanceData.summary.attendanceRate}</Text>
+                    <Text style={styles.summaryValue}>{attendanceRate}</Text>
                 </View>
-                <Text style={styles.summaryInstruction}>Using this calendar, you can view all the details of the days the student attended and was absent from school.</Text>
-            </View>
-
-            {attendanceData.months.map((monthData) => (
-                <View key={monthData.month}>
-                    <TouchableOpacity style={styles.monthHeader} onPress={() => toggleMonth(monthData.month)}>
-                        <Text style={styles.monthTitle}>{monthData.month}</Text>
-                        <Ionicons name={expandedMonth === monthData.month ? 'chevron-up' : 'chevron-down'} size={20} color="#555" />
-                    </TouchableOpacity>
-                    {expandedMonth === monthData.month && (
-                        <>
-                            <View style={styles.calendarWeekHeader}>
-                                <Text>SUN</Text>
-                                <Text>MON</Text>
-                                <Text>TUE</Text>
-                                <Text>WED</Text>
-                                <Text>THU</Text>
-                                <Text>FRI</Text>
-                                <Text>SAT</Text>
-                            </View>
-                            {renderCalendar(monthData.days)}
-                        </>
-                    )}
-                </View>
-            ))}
-
-            <View style={styles.legend}>
-                <View style={styles.legendItem}>
-                    <View style={[styles.legendCircle, { backgroundColor: '#BFFFBF' }]} />
-                    <Text>Present</Text>
-                </View>
-                <View style={styles.legendItem}>
-                    <View style={[styles.legendCircle, { backgroundColor: '#FFBFBF' }]} />
-                    <Text>Absent</Text>
-                </View>
+                <Text style={styles.summaryInstruction}>You can view all the details of the days the student attended and was absent from school.</Text>
             </View>
         </ScrollView>
     );
@@ -283,7 +221,7 @@ const styles = StyleSheet.create({
     searchInput: { flex: 1, fontSize: 14 },
     yearRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
     yearBox: { backgroundColor: '#E0E0E0', padding: 10, borderRadius: 5, flexDirection: 'row', alignItems: 'center' },
-    summarySection: { backgroundColor: '#fff', padding: 15, borderRadius: 5, marginBottom: 20 },
+    summarySection: { backgroundColor: '#fff', padding: 15, borderRadius: 5, marginBottom: 20,marginTop:30 },
     summaryTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 10 },
     summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
     summaryValue: { fontWeight: 'bold' },
