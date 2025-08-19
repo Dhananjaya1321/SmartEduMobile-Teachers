@@ -71,6 +71,7 @@ export default function ViewStudentsTodayAttendance() {
         setSelectedClass(classId)
         fetchStudents(classId)
     };
+
     const fetchStudents = async (classId: string) => {
         try {
             setLoading(true);
