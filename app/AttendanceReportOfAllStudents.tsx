@@ -113,7 +113,7 @@ export default function AttendanceReportOfAllStudents() {
                 "Student Name,Attended Count,Absent Count,Attendance Rate",
                 ...attendanceData.map(
                     (item) =>
-                        `${item.studentName || "Unknown"},${item.attendedCount || 0},${item.absentCount || 0},${item.attendedRate || "0%"}`
+                        `${item.studentName || "Unknown"},${item.totalAttended || 0},${item.totalAbsent || 0},${item.attendedRate+'%' || "0%"}`
                 ),
             ].join("\n");
 
@@ -207,19 +207,7 @@ export default function AttendanceReportOfAllStudents() {
                     </View>
                 </View>
             </View>
-            <View style={styles.filterContainer}>
-                <View style={styles.filterItem}>
-                    <Text style={styles.label}>Year</Text>
-                    <View style={styles.dateBox}>
-                        <RNDateTimePicker
-                            value={new Date(selectedYear, 0, 1)}
-                            mode="date"
-                            display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                            onChange={handleYearChange}
-                        />
-                    </View>
-                </View>
-            </View>
+
 
             {/* Loading and Error States */}
             {isLoading && <Text style={styles.infoText}>Loading...</Text>}
