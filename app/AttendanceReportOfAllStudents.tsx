@@ -86,8 +86,6 @@ export default function AttendanceReportOfAllStudents() {
             setError(null);
             const response = await attendanceAPIController.getAllStudentsAllAttendanceByClassId(classId);
 
-            console.log(response.data)
-
             setSummary({totalDays: response.data[0].totalDays, totalStudents: response.data.length});
             setAttendanceData(response.data.map((s, index) => ({...s, id: s.id || index.toString()})));
         } catch (err) {
