@@ -39,7 +39,7 @@ export default function AddHomeworkScreen() {
     const fetchData = async () => {
         try {
             const response = await homeworksAPIController.getAllHomeworksByClassId(classId);
-            console.log("API Response:", response.data);
+
             setTotalHomework(response.data.length);
             setHomeworkList(response.data.map(item => ({
                 id: item.id,
