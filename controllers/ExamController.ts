@@ -1,6 +1,18 @@
 import apiClient from "@/apiClient";
 
 const examAPIController = {
+    releaseExamResults: async (payload: any) => {
+        try {
+            const response = await apiClient.post(`/results/exam`, payload);
+            if (response.status === 200) {
+                return response.data;
+            } else {
+                return null;
+            }
+        } catch (error) {
+            return null;
+        }
+    },
     releaseMarks: async (payload: any) => {
         try {
             const response = await apiClient.post(`/results`, payload);

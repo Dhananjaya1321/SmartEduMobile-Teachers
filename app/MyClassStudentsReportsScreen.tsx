@@ -10,6 +10,7 @@ export default function MyClassStudentsReportsScreen() {
     const router = useRouter();
     const [exams, setExams] = useState<any[]>([]);
     const [grade, setGrade] = useState('');
+    const [examData, setExamData] = useState();
     const [className, setClassName] = useState('');
     const [students, setStudents] = useState<any[]>([]);
     const [totalStudents, setTotalStudents] = useState(0);
@@ -39,6 +40,7 @@ export default function MyClassStudentsReportsScreen() {
         try {
             setLoading(true);
             const response = await examAPIController.getAllTermExamsMyClass(students[0].gradeId, year);
+            setExamData(response)
 
             // Exams backend gives
             const backendExams = response || [];
@@ -95,14 +97,27 @@ export default function MyClassStudentsReportsScreen() {
     const handleExamClick = (item: any) => {
         if (item.disabled) return; // ignore clicks on not scheduled
 
+        // Find the clicked exam's full data from examData
+        const selectedExam = examData?.find((ex: any) => ex.examName === item.title);
+
+        if (!selectedExam) {
+            console.warn("Exam data not found for:", item.title);
+            return;
+        }
+
         if (item.status === "PENDING") {
             // Go to TermExamResultsReleaseScreen
             router.push({
                 pathname: "/TermExamResultsReleaseScreen",
                 params: {
+                    id: selectedExam.id,
+                    examName: selectedExam.examName,
+                    institutionId: selectedExam.institutionId,
+                    grade: selectedExam.grade,
+                    year: selectedExam.year,
                     title: item.title,
                     status: item.status,
-                    timetable: JSON.stringify(item.timetable),
+                    timetable: JSON.stringify(selectedExam.timetable),
                 },
             });
         } else if (item.status === "RELEASED") {
@@ -110,13 +125,19 @@ export default function MyClassStudentsReportsScreen() {
             router.push({
                 pathname: "/StudentsReportScreen",
                 params: {
+                    id: selectedExam.id,
+                    examName: selectedExam.examName,
+                    institutionId: selectedExam.institutionId,
+                    grade: selectedExam.grade,
+                    year: selectedExam.year,
                     title: item.title,
                     status: item.status,
-                    timetable: JSON.stringify(item.timetable),
+                    timetable: JSON.stringify(selectedExam.timetable),
                 },
             });
         }
     };
+
 
     return (
         <ScrollView style={styles.container}>
