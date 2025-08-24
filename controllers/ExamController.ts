@@ -22,6 +22,17 @@ const examAPIController = {
             return null;
         }
     },
+    getAllTermExamsMyClass: async (gradeId:any,year:any) => {
+        try {
+            const response = await apiClient.get(`/exams/grade/term-exams/my-class/to-teachers/${gradeId}/${year}`);
+            if (response.status === 200 && response.data.state === "OK") {
+                return response.data.data;
+            }
+            return null;
+        } catch (error) {
+            return null;
+        }
+    },
     getALExams: async () => {
         try {
             const response = await apiClient.get(`/exams/grade/al-exams/to-parents`);
