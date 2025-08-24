@@ -37,7 +37,7 @@ export default function StudentsReportScreen() {
                 const response = await studentResultsAPIController.getAllClassStudentsResultsDetails(id);
 
                 if (response) {
-                    // ✅ Sort by rank before setting
+                    // Sort by rank before setting
                     const sorted = [...response].sort((a, b) => a.rank - b.rank);
                     setStudents(sorted);
                 } else {
@@ -100,7 +100,7 @@ export default function StudentsReportScreen() {
                                 pathname: "/StudentFullReportScreen",
                                 params: {
                                     studentId: item.studentId,
-                                    name: item.studentName, // ✅ use correct property
+                                    name: item.studentName,
                                     examId: item.examId,
                                 },
                             })
