@@ -61,7 +61,7 @@ export default function TermExamResultsReleaseScreen() {
 
                 // Navigate to StudentsReportScreen after success
                 router.push({
-                    pathname: "/StudentsReportScreen",
+                    pathname: "/ManageResultsScreen",
                     params: {
                         title,
                         status: "RELEASED",
