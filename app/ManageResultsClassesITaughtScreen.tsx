@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Animated} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import ScrollView = Animated.ScrollView;
 import gradeAPIController from "@/controllers/GradesController";
+
+const ScrollView = Animated.ScrollView;
 
 export default function ManageResultsClassesITaughtScreen() {
     const router = useRouter();
@@ -18,13 +19,23 @@ export default function ManageResultsClassesITaughtScreen() {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                // Replace with your actual API endpoint
                 const response = await gradeAPIController.getAllGradesITeach();
+                console.log("API response:", response);
 
-                setTotalClasses(response.data.length);
-                setClasses(response.data);
+                // Flatten all grades -> all classes
+                const allClasses = response.data.flatMap((grade) =>
+                    grade.classRooms.map((cls) => ({
+                        ...cls,
+                        gradeId: grade.id,
+                        gradeName: grade.gradeName,
+                    }))
+                );
+
+                setTotalClasses(allClasses.length);
+                setClasses(allClasses);
             } catch (err) {
-
+                setError("Failed to fetch classes");
+                console.error(err);
             } finally {
                 setLoading(false);
             }
@@ -35,7 +46,14 @@ export default function ManageResultsClassesITaughtScreen() {
     const handleClassPress = (item) => {
         router.push({
             pathname: '/StudentsMarksEntryScreen',
-            params: { subjects:item.classRooms[0].classTeacherSubject ,gradeId:item.id, grade: item.gradeName, classId:item.classRooms[0].id,className: item.classRooms[0].className, year: year },
+            params: {
+                subjects: item.classTeacherSubject,
+                gradeId: item.gradeId,
+                grade: item.gradeName,
+                classId: item.id,
+                className: item.className,
+                year: year
+            },
         });
     };
 
@@ -75,22 +93,23 @@ export default function ManageResultsClassesITaughtScreen() {
                 <Text style={styles.totalClasses}>{totalClasses}</Text>
             </View>
 
-
             <Text style={styles.clickText}>Click on the class to add homework.</Text>
 
             <FlatList
                 data={classes}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.classItem}
                         onPress={() => handleClassPress(item)}
                     >
-                        <Text style={styles.gradeText}>Grade {item.classRooms[0].className}</Text>
+                        <Text style={styles.gradeText}>
+                            Grade {item.gradeName} - {item.className}
+                        </Text>
                         <Text style={styles.subjectText}>
-                            {item.classRooms[0].classTeacherSubject.length > 12
-                                ? item.classRooms[0].classTeacherSubject.substring(0, 12) + "..."
-                                : item.classRooms[0].classTeacherSubject}
+                            {item.classTeacherSubject && item.classTeacherSubject.length > 20
+                                ? item.classTeacherSubject.substring(0, 20) + "..."
+                                : item.classTeacherSubject}
                         </Text>
                     </TouchableOpacity>
                 )}
@@ -121,9 +140,8 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
-    totalClassesView: { display:"flex", flexDirection:"row", justifyContent:"space-between", marginBottom:10, alignItems:"center" },
+    totalClassesView: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10, alignItems: "center" },
     gradeText: { fontSize: 14 },
-    classText: { fontSize: 14 },
     subjectText: { fontSize: 14 },
     errorText: { textAlign: 'center', fontSize: 16, color: 'red' },
 });

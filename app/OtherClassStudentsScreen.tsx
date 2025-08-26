@@ -10,7 +10,7 @@ const placeholderImage = require('@/assets/images/character.png');
 
 export default function OtherClassStudentsScreen() {
     const navigation = useNavigation();
-    const { gradeId,grade,classId, class: className, year } = useLocalSearchParams(); // Catch parameters from navigation
+    const { gradeId,grade,classId, className, year } = useLocalSearchParams(); // Catch parameters from navigation
     const [students, setStudents] = useState([]);
     const [totalStudents, setTotalStudents] = useState(0);
     const [loading, setLoading] = useState(true);

@@ -49,7 +49,7 @@ export default function StudentsReportScreen() {
 
     const checkExamResults = async () => {
         try {
-            const response = await examAPIController.checkExamResults(gradeId, year);
+            const response = await examAPIController.checkExamResults(gradeId, year,classId);
             if (response === null) {
                 // no exam yet
             } else {

@@ -78,9 +78,9 @@ const examAPIController = {
             return null;
         }
     },
-    checkExamResults: async (gradeId:any,year:any) => {
+    checkExamResults: async (gradeId:any,year:any,classId:any) => {
         try {
-            const response = await apiClient.get(`/exams/check-term-tests/to-teachers/${gradeId}/${year}`);
+            const response = await apiClient.get(`/exams/check-term-tests/to-teachers/${gradeId}/${year}/${classId}`);
             if (response.status === 200 && response.data.state === "OK") {
                 return response.data.data;
             }
