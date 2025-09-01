@@ -1,18 +1,19 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Modal, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const teacherName = "Teacher’s Name";
 
 const features = [
-    { label: 'Attendance', image: require('@/assets/images/attendance.png'), route: '/AttendanceScreen' },
-    { label: 'Time Table', image: require('@/assets/images/timetable.png') },
-    { label: 'Students', image: require('@/assets/images/students.png') },
-    { label: 'Exams', image: require('@/assets/images/exams.png') },
-    { label: 'Results', image: require('@/assets/images/results.png') },
-    { label: 'Homework', image: require('@/assets/images/homework.png') },
-    { label: 'Events', image: require('@/assets/images/events.png') },
+    { label: 'Attendance', image: require('@/assets/images/attendance.png'), route: '/ManageAttendanceScreen' },
+    { label: 'Timetable', image: require('@/assets/images/timetable.png'), route: '/ManageTimetableScreen' },
+    { label: 'Students', image: require('@/assets/images/students.png'), route: '/ManageStudentsScreen' },
+    { label: 'Exams', image: require('@/assets/images/exams.png'), route: '/ManageExamsScreen' },
+    { label: 'Results', image: require('@/assets/images/results.png'), route: '/ManageResultsScreen' },
+    { label: 'Homework', image: require('@/assets/images/homework.png'), route: '/ManageHomeworkScreen' },
+    { label: 'Events', image: require('@/assets/images/events.png'), route: '/ViewEventsScreen' },
 ];
 
 function formatData(data, numColumns) {
@@ -27,6 +28,16 @@ function formatData(data, numColumns) {
 
 export default function HomeScreen() {
     const router = useRouter();
+    const [menuVisible, setMenuVisible] = useState(false);
+
+    const handleLogout = async () => {
+        try {
+            await AsyncStorage.removeItem('user');
+            router.replace('/LoginScreen');
+        } catch (error) {
+            console.error('Error logging out:', error);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -35,7 +46,9 @@ export default function HomeScreen() {
                     <Text style={styles.helloText}>Hello</Text>
                     <Text style={styles.teacherName}>{teacherName}</Text>
                 </View>
-                <Ionicons name="menu" size={24} color="black" />
+                <TouchableOpacity onPress={() => setMenuVisible(true)}>
+                    <Ionicons name="menu" size={24} color="black" />
+                </TouchableOpacity>
             </View>
 
             <Text style={styles.sectionTitle}>Academics</Text>
@@ -43,7 +56,7 @@ export default function HomeScreen() {
             <FlatList
                 data={formatData(features, 3)}
                 keyExtractor={(item, index) => index.toString()}
-                numColumns={3}
+                numColumns={2}
                 renderItem={({ item }) => {
                     if (item.empty) {
                         return <View style={[styles.card, styles.invisibleCard]} />;
@@ -59,6 +72,22 @@ export default function HomeScreen() {
                     );
                 }}
             />
+
+            {/* Menu Modal */}
+            <Modal
+                transparent={true}
+                visible={menuVisible}
+                animationType="fade"
+                onRequestClose={() => setMenuVisible(false)}
+            >
+                <Pressable style={styles.modalOverlay} onPress={() => setMenuVisible(false)}>
+                    <View style={styles.menuContainer}>
+                        <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+                            <Text style={styles.menuItemText}>Logout</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Pressable>
+            </Modal>
         </View>
     );
 }
@@ -75,5 +104,24 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
     cardImage: { height: 60, width: 60, resizeMode: 'contain', marginBottom: 8 },
     cardText: { fontSize: 12, textAlign: 'center' },
-    invisibleCard: { backgroundColor: 'transparent', elevation: 0, shadowOpacity: 0 }
+    invisibleCard: { backgroundColor: 'transparent', elevation: 0, shadowOpacity: 0 },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    menuContainer: {
+        backgroundColor: '#fff',
+        padding: 10,
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+    },
+    menuItem: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+    },
+    menuItemText: {
+        fontSize: 16,
+        color: '#000',
+    },
 });
