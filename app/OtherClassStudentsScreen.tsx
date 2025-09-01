@@ -3,13 +3,14 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndi
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useLocalSearchParams } from 'expo-router';
 import Animated from 'react-native-reanimated';
+import studentAPIController from "@/controllers/StudentController";
 
 // Placeholder image
 const placeholderImage = require('@/assets/images/character.png');
 
 export default function OtherClassStudentsScreen() {
     const navigation = useNavigation();
-    const { grade, class: className, year } = useLocalSearchParams(); // Catch parameters from navigation
+    const { gradeId,grade,classId, className, year } = useLocalSearchParams(); // Catch parameters from navigation
     const [students, setStudents] = useState([]);
     const [totalStudents, setTotalStudents] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -24,26 +25,10 @@ export default function OtherClassStudentsScreen() {
         const fetchStudentsData = async () => {
             try {
                 setLoading(true);
-                // Replace with actual API call
-                // const response = await fetch(`your-backend-api/students?grade=${currentGrade}&class=${currentClass}&year=${currentYear}`);
-                // const data = await response.json();
-                const sampleData = {
-                    totalStudents: 40,
-                    students: [
-                        { id: 1, name: 'Student Name', studentNo: '5082055', photo: placeholderImage },
-                        { id: 2, name: 'Student Name', studentNo: '5082055', photo: placeholderImage },
-                        { id: 3, name: 'Student Name', studentNo: '5082055', photo: placeholderImage },
-                        { id: 4, name: 'Student Name', studentNo: '5082055', photo: placeholderImage },
-                        { id: 5, name: 'Student Name', studentNo: '5082055', photo: placeholderImage },
-                        { id: 6, name: 'Student Name', studentNo: '5082055', photo: placeholderImage },
-                        { id: 7, name: 'Student Name', studentNo: '5082055', photo: placeholderImage },
-                        { id: 8, name: 'Student Name', studentNo: '5082055', photo: placeholderImage },
-                        { id: 9, name: 'Student Name', studentNo: '5082055', photo: placeholderImage },
-                        { id: 10, name: 'Student Name', studentNo: '5082055', photo: placeholderImage },
-                    ]
-                };
-                setTotalStudents(sampleData.totalStudents);
-                setStudents(sampleData.students);
+                const response = await studentAPIController.findClassAllStudentsByClassId(classId);
+
+                setTotalStudents(response.length);
+                setStudents(response);
             } catch (err) {
                 setError('Failed to load students data.');
             } finally {
@@ -74,7 +59,7 @@ export default function OtherClassStudentsScreen() {
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={24} color="#333" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>{currentGrade}-{currentClass} Students</Text>
+                <Text style={styles.headerTitle}>{currentClass} Students</Text>
                 <Ionicons name="notifications-outline" size={24} color="#333" />
             </View>
 
@@ -83,7 +68,7 @@ export default function OtherClassStudentsScreen() {
                 <View style={styles.infoBox}>
                     <Text style={styles.infoLabel}>Current Grade</Text>
                     <View style={styles.infoValueBox}>
-                        <Text style={styles.infoValue}>{currentGrade}</Text>
+                        <Text style={styles.infoValue}>Grade {currentGrade}</Text>
                     </View>
                 </View>
                 <View style={styles.infoBox}>
@@ -105,7 +90,7 @@ export default function OtherClassStudentsScreen() {
             {/* Summary */}
             <View style={styles.totalClassesView}>
                 <Text style={styles.totalStudentsText}>
-                    The total number of students in this class in this grade
+                    The total students
                 </Text>
                 <Text style={styles.totalStudents}>{totalStudents}</Text>
             </View>
@@ -117,9 +102,11 @@ export default function OtherClassStudentsScreen() {
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
                     <TouchableOpacity onPress={() => handleStudentPress(item.id)} style={styles.studentItem}>
-                        <Image source={item.photo} style={styles.studentPhoto} />
-                        <Text style={styles.studentName}>{item.name}</Text>
-                        <Text style={styles.studentNo}>{item.studentNo}</Text>
+                        <Image source={placeholderImage} style={styles.studentPhoto} />
+                        <View style={{display:"flex",}}>
+                            <Text style={styles.studentName}>{item.fullNameWithInitials}</Text>
+                            <Text style={styles.studentNo}>{item.registrationNumber}</Text>
+                        </View>
                     </TouchableOpacity>
                 )}
                 contentContainerStyle={styles.studentList}
@@ -156,7 +143,7 @@ const styles = StyleSheet.create({
     },
     studentPhoto: { width: 40, height: 40, borderRadius: 5, marginRight: 10 },
     studentName: { flex: 1, fontSize: 16, color: '#333' },
-    studentNo: { fontSize: 14, color: '#444' },
+    studentNo: {marginTop:1,fontSize: 10, color: '#444' },
     errorText: { textAlign: 'center', fontSize: 16, color: 'red', marginTop: 20 },
     filterRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
 });

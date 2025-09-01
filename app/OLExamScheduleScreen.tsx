@@ -1,104 +1,92 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import {useNavigation} from "expo-router";
+import { useNavigation } from "expo-router";
+import examAPIController from "@/controllers/ExamController";
 
 export default function OLExamScheduleScreen() {
     const navigation = useNavigation();
-    const [examData, setExamData] = useState([]);
+    const [examData, setExamData] = useState<any[]>([]);
+
+    const fetchData = async () => {
+        try {
+            const response = await examAPIController.getOLExams();
+
+            if (response) {
+                // transform backend data into UI-friendly structure
+                const formatted = response.map((exam: any) => ({
+                    examName: exam.examName,
+                    grade: exam.grade,
+                    year: exam.year,
+                    exams: exam.timetable.map((t: any) => ({
+                        date: t.date,
+                        time: `${t.startTime} - ${t.endTime}`,
+                        subject: t.subject,
+                        paper: t.paper
+                    }))
+                }));
+
+                setExamData(formatted);
+            }
+        } catch (err) {
+            console.error("Failed to fetch exams", err);
+        }
+    };
 
     useEffect(() => {
-        // TODO: Replace with your API call
-        // fetch('YOUR_API_URL')
-        //   .then(res => res.json())
-        //   .then(data => setExamData(data));
-
-        // Sample Data (matches your screenshot)
-        setExamData([
-            {
-                date: '17th March 2025 Monday',
-                time: '08:30 A.M. - 11:40 A.M.',
-                subjects: [
-                    '11 Buddhism',
-                    '12 Saivanery',
-                    '14 Catholicism',
-                    '15 Christianity',
-                    '16 Islam'
-                ]
-            },
-            {
-                date: '18th March 2025 Monday',
-                time: '08:30 A.M. - 11:40 A.M.',
-                subjects: [
-                    '21 Sinhala Language & Literature (Paper I, I)',
-                    '22 Tamil Language & Literature (Paper I, I)'
-                ]
-            },
-            {
-                date: '18th March 2025 Monday',
-                time: '13:00 P.M. - 15:00 P.M.',
-                subjects: [
-                    '21 Sinhala Language & Literature (Paper III)',
-                    '22 Tamil Language & Literature (Paper III)'
-                ]
-            }
-        ]);
+        fetchData();
     }, []);
-
-    const handleDownload = () => {
-        // TODO: Implement download from backend
-        alert('Download timetable from backend here');
-    };
 
     return (
         <ScrollView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={24} color="black"/>
+                    <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>O/L Exam Schedule</Text>
                 <Ionicons name="notifications-outline" size={24} color="#000" />
             </View>
 
-            {/* Info Text */}
-            <Text style={styles.infoText}>
-                Click the button below to download the complete exam timetable.
-            </Text>
-
-            {/* Download Button */}
-            <TouchableOpacity style={styles.downloadButton} onPress={handleDownload}>
-                <Text style={styles.downloadText}>Download Timetable</Text>
-            </TouchableOpacity>
 
             {/* Timetable List */}
-            <ScrollView>
-                <Text style={styles.timetableTitle}>Timetable</Text>
+            <Text style={styles.timetableTitle}>Timetable</Text>
 
-                {examData.map((item, index) => (
-                    <View key={index} style={styles.examBox}>
-                        <Text style={styles.examDate}>
-                            {item.date} | ({item.time})
-                        </Text>
-                        {item.subjects.map((subj, i) => (
-                            <Text key={i} style={styles.subjectText}>{subj}</Text>
+            {examData.map((exam, index) => (
+                <View key={index} style={styles.examSection}>
+                    {/* Exam Header */}
+                    <Text style={styles.examHeader}>
+                        {exam.examName} (Grade {exam.grade}, {exam.year})
+                    </Text>
+                    <View  style={styles.examBox}>
+                        {exam.exams.map((e: any, i: number) => (
+                           <View style={{marginBottom:5}}>
+                                <Text key={i} style={styles.examDate}>
+                                    {e.date} | ({e.time})
+                                </Text>
+                                <Text style={styles.subjectText}>
+                                    {e.subject} ({e.paper})
+                                </Text>
+                           </View>
                         ))}
                     </View>
-                ))}
-            </ScrollView>
+                </View>
+            ))}
         </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20},
-    header: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50},
-    headerTitle: {fontSize: 18, fontWeight: '600'},
+    container: { flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30 },
+    headerTitle: { fontSize: 18, fontWeight: '600' },
     infoText: { fontSize: 13, color: '#555', marginBottom: 10 },
-    downloadButton: { backgroundColor: '#3D4E61', paddingVertical: 12, borderRadius: 8, alignItems: 'center', marginBottom: 50 },
+    downloadButton: { backgroundColor: '#3D4E61', paddingVertical: 12, borderRadius: 8, alignItems: 'center', marginBottom: 30 },
     downloadText: { color: '#fff', fontSize: 15, fontWeight: 'bold' },
-    timetableTitle: { fontWeight: 'bold', marginBottom: 10 },
-    examBox: { backgroundColor: '#fff', borderRadius: 8, padding: 15, marginBottom: 10 },
+    timetableTitle: { fontWeight: 'bold', marginBottom: 10, fontSize: 16 },
+    examSection: { marginBottom: 20 },
+    examHeader: { fontSize: 14, fontWeight: '600', marginBottom: 10, color: '#222' },
+    examBox: { backgroundColor: '#fff', borderRadius: 8, padding: 12, marginBottom: 10 },
     examDate: { fontSize: 12, fontWeight: 'bold', color: '#000', marginBottom: 5 },
     subjectText: { fontSize: 12, color: '#666' }
 });

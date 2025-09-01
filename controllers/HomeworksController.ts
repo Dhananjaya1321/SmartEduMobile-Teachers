@@ -1,0 +1,28 @@
+import apiClient from "@/apiClient";
+
+const homeworksAPIController = {
+    saveHomeworks: async (formData: any) => {
+        try {
+            const response = await apiClient.post(`/homeworks`, formData);
+            if (response.status === 200 && response.data.state === "OK") {
+                return response.data.data;
+            }
+        } catch (error) {
+            console.error("Error in saveHomeworks:", error.response?.data || error.message);
+            return null;
+        }
+    },
+    getAllHomeworksByClassId: async (classId:any) => {
+        try {
+            const response = await apiClient.get(`/homeworks/class/${classId}`);
+            if (response.status === 200 && response.data.state === "OK") {
+                return response.data;
+            }
+            return null;
+        } catch (error) {
+            return null;
+        }
+    },
+};
+
+export default homeworksAPIController;

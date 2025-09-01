@@ -1,31 +1,77 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ImageBackground, ScrollView } from 'react-native';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    Alert,
+    ImageBackground,
+    ScrollView,
+    ActivityIndicator
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
+import loginAPIController from "@/controllers/LoginController";
+import jwtDecode from "jwt-decode";
 
 export default function LoginScreen() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
+
 
     useEffect(() => {
         const checkLoginStatus = async () => {
-            const user = await AsyncStorage.getItem('user');
-            if (user) router.replace('/');
+            const token = await AsyncStorage.getItem("token");
+            if (!token) return;
+
+            try {
+                const decoded = jwtDecode(token);
+                const currentTime = Date.now() / 1000;
+
+                if (decoded.exp < currentTime) {
+                    // Expired -> clear and redirect
+                    await AsyncStorage.removeItem("token");
+                    await AsyncStorage.removeItem("user");
+                    router.replace("/LoginScreen");
+                } else {
+                    router.replace("/"); // Token valid -> go to dashboard
+                }
+            } catch (e) {
+                // Invalid token -> force logout
+                await AsyncStorage.removeItem("token");
+                await AsyncStorage.removeItem("user");
+                router.replace("/LoginScreen");
+            }
         };
+
         checkLoginStatus();
     }, []);
 
+
     const handleLogin = async () => {
-        if (username === 'teacher' && password === 'password') {
-            await AsyncStorage.setItem('user', JSON.stringify({ username }));
-            router.replace('/');
+        if (!username || !password) {
+            Alert.alert('Error', 'Please enter both username and password');
+            return;
+        }
+
+        setLoading(true);
+        const result = await loginAPIController.checkLogin(username, password);
+        setLoading(false);
+
+        if (result.error) {
+            Alert.alert('Login Failed', result.error);
         } else {
-            Alert.alert('Error', 'Invalid username or password');
+            // Save user + token
+            await AsyncStorage.setItem('user', JSON.stringify(result));
+            await AsyncStorage.setItem('token', result.token);
+
+            router.replace('/');
         }
     };
-
     return (
         <ImageBackground
             source={require('@/assets/images/background.jpg')}
@@ -58,8 +104,12 @@ export default function LoginScreen() {
                     <Text style={styles.forgotPasswordButtonText}>Forgot password?</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                    <Text style={styles.loginButtonText}>Login</Text>
+                <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
+                    {loading ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={styles.loginButtonText}>Login</Text>
+                    )}
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.registerButton} onPress={() => router.replace('/RegisterScreen')}>

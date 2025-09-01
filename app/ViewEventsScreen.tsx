@@ -2,50 +2,30 @@ import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, ScrollView} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {useRouter} from 'expo-router';
+import eventAPIController from "@/controllers/EventController";
 
 export default function ViewEventsScreen() {
     const router = useRouter();
     const [totalEvents, setTotalEvents] = useState(0);
-    const [events, setEvents] = useState([]);
+    const [events, setEvents] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
 
     // Fetch data from backend
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                // Replace with your actual API endpoint
-                // const response = await fetch('your-backend-api-endpoint');
-                // const data = await response.json();
-                // setTotalEvents(data.totalEvents);
-                // setEvents(data.events || []);
-                setTotalEvents(14);
-                setEvents([
-                    {
-                        title: 'Pola',
-                        startDate: '2025/02/05',
-                        endDate: '2025/02/07',
-                        grade: 'All',
-                        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sed libero nibh. Mauris libero tortor, facilisis et enim sit amet, auctor euismod leo. Cras a ante cursus, blandit neque eu, porta elit. Cras at accumsan mi. Vivamus sapien ligula, aliquam id dolor ac, laculis commodo mi. Ut in dictum diam. Etiam lacinia consectetur ipsum sit amet pretium.'
-                    },
-                    {
-                        title: 'New year festival',
-                        startDate: '2025/02/05',
-                        endDate: '2025/02/07',
-                        grade: 'All',
-                        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sed libero nibh. Mauris libero tortor, facilisis et enim sit amet, auctor euismod leo. Cras a ante cursus, blandit neque eu, porta elit. Cras at accumsan mi. Vivamus sapien ligula, aliquam id dolor ac, laculis commodo mi. Ut in dictum diam. Etiam lacinia consectetur ipsum sit amet pretium.'
-                    },
-                    {
-                        title: 'Trip',
-                        startDate: '2025/02/05',
-                        endDate: '2025/02/07',
-                        grade: 'Grade - 10',
-                        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sed libero nibh. Mauris libero tortor, facilisis et enim sit amet, auctor euismod leo. Cras a ante cursus, blandit neque eu, porta elit. Cras at accumsan mi. Vivamus sapien ligula, aliquam id dolor ac, laculis commodo mi. Ut in dictum diam. Etiam lacinia consectetur ipsum sit amet pretium.'
-                    },
-                ]);
-            } catch (err) {
+                const data = await eventAPIController.getAllEventsToTeacher();
 
+                if (data) {
+                    setTotalEvents(data.totalEvents || data.length || 0);
+                    setEvents(data.events || data); // backend might return { events: [] } or just []
+                } else {
+                    setError("Failed to load events.");
+                }
+            } catch (err) {
+                setError("Something went wrong while fetching events.");
             } finally {
                 setLoading(false);
             }
@@ -56,7 +36,7 @@ export default function ViewEventsScreen() {
     if (loading) {
         return (
             <View style={styles.container}>
-                <ActivityIndicator size="large" color="#0000ff"/>
+                <ActivityIndicator size="large" color="#0000ff" />
             </View>
         );
     }
@@ -69,36 +49,41 @@ export default function ViewEventsScreen() {
         );
     }
 
+
     return (
         <ScrollView style={styles.container}>
+            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="black"/>
+                    <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>View Events</Text>
-                <Ionicons name="notifications-outline" size={24} color="black"/>
+                <Ionicons name="notifications-outline" size={24} color="black" />
             </View>
 
+            {/* Year */}
             <Text style={styles.yearText}>Year</Text>
             <View style={styles.yearBox}>
-                <Text style={styles.year}>2021</Text>
+                <Text style={styles.year}>{new Date().getFullYear()}</Text>
             </View>
 
+            {/* Total events */}
             <View style={styles.totalClassesView}>
                 <Text style={styles.totalEventsText}>Total number of events</Text>
                 <Text style={styles.totalEvents}>{totalEvents}</Text>
             </View>
 
+            {/* Events list */}
             <FlatList
                 data={events}
                 keyExtractor={(item, index) => index.toString()}
-                renderItem={({item}) => (
+                renderItem={({ item }) => (
                     <View style={styles.eventItem}>
                         <View style={styles.gradeBox}>
-                            <Text style={styles.eventGrade}>{item.grade}</Text>
+                            <Text style={styles.eventGrade}>{item.grade || "All"}</Text>
                         </View>
-                        <Text style={styles.eventTitle}>{item.title}</Text>
-                        <View style={{marginBottom:10}}>
+                        <Text style={styles.eventTitle}>{item.name}</Text>
+                        <View style={{ marginBottom: 10 }}>
                             <Text style={styles.eventDate}>
                                 Start date: {item.startDate}
                             </Text>

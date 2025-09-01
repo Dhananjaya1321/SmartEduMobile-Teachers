@@ -1,169 +1,252 @@
 import React, { useState, useEffect } from 'react';
-import {View, Text, StyleSheet, Image, ScrollView, FlatList, ActivityIndicator, TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator, TouchableOpacity, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-
-// Placeholder image (replace with actual image source from backend)
-const placeholderImage = require('@/assets/images/character.png'); // Update with your asset path
+import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { Table, Row } from 'react-native-table-component';
+import { LineChart } from 'react-native-chart-kit';
+import studentResultsAPIController from "@/controllers/StudentResultsController";
 
 export default function StudentFullReportScreen() {
-    const { name } = useLocalSearchParams();
-    const router = useRouter();
-    const [student, setStudent] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [reportData, setReportData] = useState<any>(null);
+    const navigation = useNavigation();
+    const { studentId, name, examId } = useLocalSearchParams();
+    const router = useRouter();
+    const [error, setError] = useState<string | null>(null);
 
-    // Fetch data from backend
+    // map exam names to short codes
+    const examMap: Record<string, string> = {
+        "First Term Exam": "T1 Mar.",
+        "Mid-Term Exam": "T2 Mar.",
+        "Final Term Exam": "T3 Mar."
+    };
+
     useEffect(() => {
+        if (!studentId) {
+            setLoading(false);
+            setError("Invalid student ID. Cannot load data.");
+            return;
+        }
+
         const fetchData = async () => {
             try {
                 setLoading(true);
-                // Replace with your actual API endpoint
-                // const response = await fetch(`your-backend-api-endpoint?studentName=${name}`);
-                // const data = await response.json();
-                // setStudent(data.student || {});
-                setStudent({
-                    photo: placeholderImage,
-                    name: name || 'Student Name',
-                    ranks: {
-                        classRank: 1,
-                        schoolRank: 5,
-                        zonalRank: 12,
-                        provincialRank: 25,
-                        islandRank: 50,
-                    },
-                    termResults: [
-                        { term: '1st Term', mathematics: '85%', science: '78%', english: '90%' },
-                        { term: '2nd Term', mathematics: '88%', science: '80%', english: '92%' },
-                        { term: '3rd Term', mathematics: '90%', science: '82%', english: '95%' },
-                    ],
-                    progress: '88%',
-                    attendance: '94%',
-                    achievements: ['Top Scorer in Mathematics', 'Attendance Award', 'Science Project Winner'],
-                });
+                const response = await studentResultsAPIController.getStudentsResultsDetails(studentId);
+
+                if (response) {
+                    const student = {
+                        name: response.studentName,
+                        grade: response.reports[0]?.gradeName,
+                        className: "", // if API has class, map it here
+                        year: response.reports[0]?.year,
+                        totalMarks: response.reports.reduce((sum: number, r: any) => sum + (r.totalMarks || 0), 0)
+                    };
+
+                    // Collect all reports
+                    const reports = response.reports;
+
+                    // Fixed: always use all 3 exam codes
+                    const examOrder = ["T1 Mar.", "T2 Mar.", "T3 Mar."];
+
+                    // Collect all subjects
+                    const allSubjects = Array.from(
+                        new Set(
+                            reports.flatMap((r: any) =>
+                                r.marksList ? r.marksList.map((m: any) => m.subject) : []
+                            )
+                        )
+                    );
+
+                    // Build report table with subject rows first
+                    const reportTable = allSubjects.map(subject => {
+                        const row: any[] = [subject];
+                        examOrder.forEach(examCode => {
+                            const report = reports.find(
+                                (r: any) => (examMap[r.examName] || r.examName) === examCode
+                            );
+                            if (report) {
+                                const markObj = report.marksList?.find((m: any) => m.subject === subject);
+                                row.push(markObj ? markObj.marks : "-");
+                            } else {
+                                row.push("-"); // placeholder if exam not in backend yet
+                            }
+                        });
+                        return row;
+                    });
+
+                    // Add total, average, and rank rows below subject marks
+                    const totalRow = ["Total"];
+                    const averageRow = ["Average"];
+                    const rankRow = ["Rank"];
+
+                    examOrder.forEach(examCode => {
+                        const report = reports.find((r: any) => (examMap[r.examName] || r.examName) === examCode);
+                        totalRow.push(report ? report.totalMarks || "-" : "-");
+                        averageRow.push(report ? report.averageMarks || "-" : "-");
+                        rankRow.push(report ? report.rank || "-" : "-");
+                    });
+
+                    reportTable.push(totalRow);
+                    reportTable.push(averageRow);
+                    reportTable.push(rankRow);
+
+                    // Simple chart demo: take total marks and average marks
+                    const chartData = {
+                        labels: examOrder,
+                        series1: examOrder.map(code => {
+                            const report = reports.find(
+                                (r: any) => (examMap[r.examName] || r.examName) === code
+                            );
+                            return report ? report.totalMarks || 0 : 0;
+                        }),
+                        series2: examOrder.map(code => {
+                            const report = reports.find(
+                                (r: any) => (examMap[r.examName] || r.examName) === code
+                            );
+                            return report ? report.averageMarks || 0 : 0;
+                        }),
+                    };
+
+                    setReportData({
+                        student,
+                        classInfo: {
+                            grade: student.grade,
+                            className: student.className,
+                            totalStudents: reports[0]?.totalStudents || 0,
+                        },
+                        ranks: {
+                            classRank: reports[0]?.rank || "-",
+                            schoolRank: "-",
+                            zonalRank: "-",
+                            districtRank: "-",
+                            provinceRank: "-",
+                            islandRank: "-"
+                        },
+                        reportTable,
+                        chartData
+                    });
+                }
             } catch (err) {
-                setError('Failed to load data. Please try again.');
+                console.error(err);
+                setError("Failed to load data. Please try again.");
             } finally {
                 setLoading(false);
             }
         };
+
         fetchData();
-    }, [name]);
+    }, [studentId]);
 
     if (loading) {
         return (
-            <View style={styles.container}>
-                <ActivityIndicator size="large" color="#0000ff" />
+            <View style={styles.loader}>
+                <ActivityIndicator size="large" color="#000" />
             </View>
         );
     }
 
-    if (error || !student) {
+    if (!reportData) {
         return (
-            <View style={styles.container}>
-                <Text style={styles.errorText}>{error || 'Student data not found.'}</Text>
+            <View style={styles.loader}>
+                <Text>{error || "Failed to load data"}</Text>
             </View>
         );
     }
+
+    const { student, ranks, classInfo, reportTable, chartData } = reportData;
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+            {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Student Full Report</Text>
+                <Text style={styles.headerTitle}>Report</Text>
                 <Ionicons name="notifications-outline" size={24} color="black" />
             </View>
 
-            <View style={styles.profileSection}>
-                <Image source={student.photo} style={styles.profilePhoto} />
-                <Text style={styles.studentName}>{student.name}</Text>
-            </View>
-
-            <View style={styles.ranksSection}>
-                <Text style={styles.sectionTitle}>Ranks</Text>
-                <View style={styles.ranksRow}>
-                    <Text style={styles.rankLabel}>Class Rank:</Text>
-                    <Text style={styles.rankValue}>{student.ranks.classRank}</Text>
-                </View>
-                <View style={styles.ranksRow}>
-                    <Text style={styles.rankLabel}>School Rank:</Text>
-                    <Text style={styles.rankValue}>{student.ranks.schoolRank}</Text>
-                </View>
-                <View style={styles.ranksRow}>
-                    <Text style={styles.rankLabel}>Zonal Rank:</Text>
-                    <Text style={styles.rankValue}>{student.ranks.zonalRank}</Text>
-                </View>
-                <View style={styles.ranksRow}>
-                    <Text style={styles.rankLabel}>Provincial Rank:</Text>
-                    <Text style={styles.rankValue}>{student.ranks.provincialRank}</Text>
-                </View>
-                <View style={styles.ranksRow}>
-                    <Text style={styles.rankLabel}>Island Rank:</Text>
-                    <Text style={styles.rankValue}>{student.ranks.islandRank}</Text>
-                </View>
-            </View>
-
-            <View style={styles.resultsSection}>
-                <Text style={styles.sectionTitle}>Term Test Results</Text>
-                <View style={styles.tableHeader}>
-                    <Text style={styles.tableHeaderText}>Term</Text>
-                    <Text style={styles.tableHeaderText}>Mathematics</Text>
-                    <Text style={styles.tableHeaderText}>Science</Text>
-                    <Text style={styles.tableHeaderText}>English</Text>
-                </View>
-                <FlatList
-                    data={student.termResults}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item }) => (
-                        <View style={styles.tableRow}>
-                            <Text style={styles.tableCell}>{item.term}</Text>
-                            <Text style={styles.tableCell}>{item.mathematics}</Text>
-                            <Text style={styles.tableCell}>{item.science}</Text>
-                            <Text style={styles.tableCell}>{item.english}</Text>
+            {/* Student Info */}
+            <View style={styles.studentCard}>
+                <View style={{ flex: 1, marginLeft: 10 }}>
+                    <View style={{ display: "flex", alignItems: "center" }}>
+                        <View style={styles.profileHeader}>
+                            <Image
+                                source={require('@/assets/images/character.png')}
+                                style={styles.profileImage}
+                            />
                         </View>
-                    )}
-                />
+                        <Text style={styles.studentName}>{student.name}</Text>
+                        <Text style={styles.studentClass}>Grade {student.grade} ({student.year})</Text>
+                    </View>
+                </View>
             </View>
 
-            <View style={styles.detailsSection}>
-                <Text style={styles.sectionTitle}>Progress</Text>
-                <Text style={styles.detailText}>{student.progress}</Text>
-
-                <Text style={styles.sectionTitle}>Attendance</Text>
-                <Text style={styles.detailText}>{student.attendance}</Text>
-
-                <Text style={styles.sectionTitle}>Achievements</Text>
-                <FlatList
-                    data={student.achievements}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item }) => <Text style={styles.achievementText}>- {item}</Text>}
-                />
+            {/* Report Table */}
+            <Text style={styles.sectionTitle}>Report</Text>
+            <View style={styles.tableContainer}>
+                <Table borderStyle={{ borderWidth: 1, borderColor: '#ccc' }}>
+                    <Row
+                        data={['Subject', ...chartData.labels]}
+                        style={styles.tableHeader}
+                        textStyle={styles.tableHeaderText}
+                    />
+                    {reportTable.map((row: any[], index: number) => (
+                        <Row
+                            key={index}
+                            data={row}
+                            style={styles.tableRow}
+                            textStyle={styles.tableText}
+                        />
+                    ))}
+                </Table>
             </View>
+
+            {/* Chart */}
+            <LineChart
+                data={{
+                    labels: chartData.labels,
+                    datasets: [
+                        { data: chartData.series1, color: () => 'blue' },
+                        { data: chartData.series2, color: () => 'red' }
+                    ]
+                }}
+                width={Dimensions.get('window').width - 40}
+                height={220}
+                chartConfig={{
+                    backgroundGradientFrom: '#fff',
+                    backgroundGradientTo: '#fff',
+                    decimalPlaces: 0,
+                    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                    labelColor: () => '#000'
+                }}
+                bezier
+                style={{ marginVertical: 20, borderRadius: 10 }}
+            />
+
+            {/* Download Button */}
+            <TouchableOpacity style={styles.downloadBtn}>
+                <Text style={{ color: 'white', fontWeight: 'bold' }}>Download Report</Text>
+            </TouchableOpacity>
         </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30 },
     headerTitle: { fontSize: 18, fontWeight: '600' },
-    profileSection: { alignItems: 'center', marginBottom: 20 },
-    profilePhoto: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
-    studentName: { fontSize: 18, fontWeight: 'bold' },
-    ranksSection: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 20, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
-    sectionTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: '#333' },
-    ranksRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
-    rankLabel: { fontSize: 14, color: '#555' },
-    rankValue: { fontSize: 14, fontWeight: 'bold' },
-    resultsSection: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 20, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
-    tableHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-    tableHeaderText: { fontSize: 14, fontWeight: 'bold', color: '#555' },
-    tableRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
-    tableCell: { fontSize: 14, color: '#444' },
-    detailsSection: { backgroundColor: '#fff', padding: 15, borderRadius: 10, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
-    detailText: { fontSize: 14, color: '#777', marginBottom: 15 },
-    achievementText: { fontSize: 14, color: '#444', marginBottom: 5 },
-    errorText: { textAlign: 'center', fontSize: 16, color: 'red' },
+    loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    studentCard: { flexDirection: 'row', backgroundColor: '#fff', padding: 15, borderRadius: 10, alignItems: 'center' },
+    studentName: { fontSize: 16, fontWeight: 'bold' },
+    studentClass: { fontSize: 12, color: 'gray' },
+    sectionTitle: { fontWeight: 'bold', marginTop: 20, marginBottom: 10 },
+    tableContainer: { backgroundColor: '#fff', borderRadius: 10 },
+    tableHeader: { height: 40, backgroundColor: '#f0f0f0' },
+    tableHeaderText: { fontWeight: 'bold', textAlign: 'center' },
+    tableRow: { height: 40 },
+    tableText: { textAlign: 'center' },
+    downloadBtn: { backgroundColor: '#2d3748', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 20, marginBottom: 20 },
+    profileHeader: { alignItems: 'center', marginBottom: 20 },
+    profileImage: { width: 100, height: 100, borderRadius: 10 },
 });

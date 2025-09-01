@@ -1,50 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Animated} from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    FlatList,
+    TouchableOpacity,
+    ActivityIndicator,
+    Animated,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import ScrollView = Animated.ScrollView;
+import gradeAPIController from '@/controllers/GradesController';
+
+// Use Animated ScrollView alias
+const ScrollView = Animated.ScrollView;
 
 export default function OtherClassesITaughtScreen() {
     const router = useRouter();
     const [totalClasses, setTotalClasses] = useState(0);
-    const [classes, setClasses] = useState([]);
+    const [classes, setClasses] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
+    const [year] = useState(new Date().getFullYear());
 
     // Fetch data from backend
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                // Replace with your actual API endpoint
-                // const response = await fetch('your-backend-api-endpoint');
-                // const data = await response.json();
-                // setTotalClasses(data.totalClasses);
-                // setClasses(data.classes);
-                setTotalClasses(11);
-                setClasses([
-                    { grade: '10', class: 'A', subject: 'Science' },
-                    { grade: '10', class: 'B', subject: 'Science' },
-                    { grade: '10', class: 'C', subject: 'Science' },
-                    { grade: '11', class: 'A', subject: 'Science' },
-                    { grade: '11', class: 'D', subject: 'Science' },
-                    { grade: '12', class: 'A', subject: 'Bio Art' },
-                    { grade: '12', class: 'E', subject: 'Bio Art' },
-                    { grade: '13', class: 'F', subject: 'Bio' },
-                ]);
-            } catch (err) {
+                const response = await gradeAPIController.getAllGradesITeach();
 
+                if (!response || !response.data) {
+                    setError('Failed to load data.');
+                    return;
+                }
+
+                let count = 0;
+                response.data.forEach((grade: any) => {
+                    count += grade.classRooms?.length || 0;
+                });
+
+                setTotalClasses(count);
+                setClasses(response.data);
+            } catch (err) {
+                setError('Something went wrong while fetching data.');
             } finally {
                 setLoading(false);
             }
         };
+
         fetchData();
     }, []);
 
-    const handleClassPress = (item) => {
+    const handleClassPress = (grade: any, classRoom: any) => {
         router.push({
             pathname: '/OtherClassStudentsScreen',
-            params: { grade: item.grade, class: item.class, year: '2021' },
+            params: {
+                gradeId: grade.id,
+                grade: grade.gradeName,
+                classId: classRoom.id,
+                className: classRoom.className,
+                year: year,
+            },
         });
     };
 
@@ -66,6 +83,7 @@ export default function OtherClassesITaughtScreen() {
 
     return (
         <ScrollView style={styles.container}>
+            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color="black" />
@@ -74,30 +92,43 @@ export default function OtherClassesITaughtScreen() {
                 <Ionicons name="notifications-outline" size={24} color="black" />
             </View>
 
+            {/* Year */}
             <Text style={styles.yearText}>Year</Text>
             <View style={styles.yearBox}>
-                <Text style={styles.year}>2021</Text>
+                <Text style={styles.year}>{year}</Text>
             </View>
 
+            {/* Total Classes */}
             <View style={styles.totalClassesView}>
                 <Text style={styles.totalClassesText}>Total number of classes teach</Text>
                 <Text style={styles.totalClasses}>{totalClasses}</Text>
             </View>
 
-
+            {/* Info */}
             <Text style={styles.clickText}>Please click on the class to see more details.</Text>
 
+            {/* List of Classes */}
             <FlatList
                 data={classes}
                 keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={styles.classItem}
-                        onPress={() => handleClassPress(item)}
-                    >
-                        <Text style={styles.gradeText}>Grade {item.grade}-{item.class}</Text>
-                        <Text style={styles.subjectText}>{item.subject}</Text>
-                    </TouchableOpacity>
+                renderItem={({ item: grade }) => (
+                    <View>
+                        <Text style={styles.gradeHeading}>Grade {grade.gradeName}</Text>
+                        {grade.classRooms?.map((classRoom: any, idx: number) => (
+                            <TouchableOpacity
+                                key={idx}
+                                style={styles.classItem}
+                                onPress={() => handleClassPress(grade, classRoom)}
+                            >
+                                <Text style={styles.gradeText}>{classRoom.className}</Text>
+                                <Text style={styles.subjectText}>
+                                    {classRoom.classTeacherSubject?.length > 12
+                                        ? classRoom.classTeacherSubject.substring(0, 12) + '...'
+                                        : classRoom.classTeacherSubject || 'No Subject'}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
                 )}
             />
         </ScrollView>
@@ -126,9 +157,9 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
-    totalClassesView: { display:"flex", flexDirection:"row", justifyContent:"space-between", marginBottom:10, alignItems:"center" },
-    gradeText: { fontSize: 14 },
-    classText: { fontSize: 14 },
-    subjectText: { fontSize: 14 },
+    totalClassesView: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, alignItems: 'center' },
+    gradeHeading: { fontSize: 16, fontWeight: '600', marginBottom: 8, marginTop: 10, color: '#333' },
+    gradeText: { fontSize: 14, fontWeight: '500' },
+    subjectText: { fontSize: 14, color: '#555' },
     errorText: { textAlign: 'center', fontSize: 16, color: 'red' },
 });

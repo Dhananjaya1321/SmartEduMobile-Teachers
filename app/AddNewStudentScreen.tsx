@@ -1,19 +1,22 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, ActivityIndicator} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {useNavigation} from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {Dropdown} from 'react-native-element-dropdown';
 import RNDateTimePicker from "@react-native-community/datetimepicker";
+import gradeAPIController from "@/controllers/GradesController";
+import studentAPIController from "@/controllers/StudentController";
+
 
 export default function AddNewStudentScreen() {
     const navigation = useNavigation();
 
     // State
-    const [dateEnteredSchool, setDateEnteredSchool] = useState(null);
+    const [dateEnteredSchool, setDateEnteredSchool] = useState(new Date());
     const [fullName, setFullName] = useState('');
     const [fullNameWithInitial, setFullNameWithInitial] = useState('');
-    const [birthDate, setBirthDate] = useState(null);
+    const [birthDate, setBirthDate] = useState(new Date());
     const [motherName, setMotherName] = useState('');
     const [motherContact, setMotherContact] = useState('');
     const [fatherName, setFatherName] = useState('');
@@ -24,10 +27,58 @@ export default function AddNewStudentScreen() {
     const [className, setClassName] = useState('');
     const [showDatePicker, setShowDatePicker] = useState({type: null, visible: false});
 
-    const formatDate = (date) => {
-        if (!date) return '';
-        return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+    const [grades, setGrades] = useState([]);
+    const [classes, setClasses] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedGrade, setSelectedGrade] = useState<string | null>(null);
+    const [selectedClass, setSelectedClass] = useState<string | null>(null);
+
+    const fetchGradesAndClasses = async () => {
+        try {
+            const response = await gradeAPIController.getAllGrades();
+
+            const gradeOptions = response.data.map((g: any) => ({
+                label: "Grade "+g.gradeName,
+                value: g.id,
+                classRooms: g.classRooms ?? [],
+            }));
+
+            setGrades(gradeOptions);
+        } catch (error) {
+
+        }
     };
+
+    const fetchStudentRegistrationNumber = async () => {
+        try {
+            const response = await studentAPIController.getRegistrationNumber();
+            setStudentRegNo(response);
+        } catch (error) {
+
+        }
+    };
+
+    const handleGradeSelect = (gradeId: string) => {
+        setSelectedGrade(gradeId);
+
+        const selected = grades.find((g) => g.value === gradeId);
+        if (selected && selected.classRooms.length > 0) {
+            const classOptions = selected.classRooms.map((c: any) => ({
+                label: c.className,
+                value: c.id,
+            }));
+            setClasses(classOptions);
+        } else {
+            setClasses([]);
+        }
+
+        setSelectedClass(null); // reset class when grade changes
+    };
+
+    useEffect(() => {
+        fetchGradesAndClasses();
+        fetchStudentRegistrationNumber();
+    }, []);
 
     const handleDateChange = (event, selectedDate) => {
         if (selectedDate) {
@@ -37,13 +88,49 @@ export default function AddNewStudentScreen() {
                 setBirthDate(selectedDate);
             }
         }
+
         setShowDatePicker({type: null, visible: false});
     };
 
-    const handleSave = () => {
-        // Save logic here
-        alert('Student Saved!');
+    const handleSave =async () => {
+        const studentData = {
+            entryDate: dateEnteredSchool
+                ? dateEnteredSchool.toISOString().split("T")[0]
+                : null,
+            fullName,
+            fullNameWithInitials: fullNameWithInitial,
+            dateOfBirth: birthDate ? birthDate.toISOString().split("T")[0] : null,
+            motherName,
+            motherContact,
+            fatherName,
+            fatherContact,
+            address,
+            registrationNumber: studentRegNo,
+            gradeId: selectedGrade, // dropdown value
+            classId: selectedClass, // dropdown value
+        };
+
+        const response = await studentAPIController.saveStudent(studentData);
+        if (response){
+            setDateEnteredSchool(new Date())
+            setFullName('');
+            setFullNameWithInitial('')
+            setBirthDate(new Date())
+            setMotherName('')
+            setMotherContact('')
+            setFullName('')
+            setFatherContact('')
+            setAddress('')
+            setSelectedClass(null)
+            setSelectedGrade(null)
+            fetchStudentRegistrationNumber()
+            alert('Student Saved!');
+        }else {
+            alert(response.message);
+        }
     };
+
+
 
     return (
         <ScrollView style={styles.container}>
@@ -61,7 +148,7 @@ export default function AddNewStudentScreen() {
 
             <Text style={styles.label}>Date the student entered school</Text>
             <View style={styles.dateBox}>
-                <RNDateTimePicker value={new Date()}/>
+                <RNDateTimePicker value={dateEnteredSchool || new Date()} onChange={handleDateChange}/>
             </View>
 
             <Text style={styles.label}>Full Name</Text>
@@ -73,7 +160,7 @@ export default function AddNewStudentScreen() {
 
             <Text style={styles.label}>Birth of Date</Text>
             <View style={styles.dateBox}>
-                <RNDateTimePicker value={new Date()}/>
+                <RNDateTimePicker value={birthDate} onChange={handleDateChange}/>
             </View>
 
             {/* Parents Details */}
@@ -102,10 +189,9 @@ export default function AddNewStudentScreen() {
             <Text style={styles.sectionTitle}>Other Details</Text>
             <Text style={styles.label}>Student Registration Number</Text>
             <TextInput style={styles.input} value={studentRegNo} onChangeText={setStudentRegNo}
-                       placeholder="Student Registration Number"/>
+                       placeholder="Student Registration Number" editable={false}/>
 
             {/* Grade & Class Dropdowns */}
-
             <View style={styles.classAndGradeBox}>
                 <Text style={styles.label}>Grade</Text>
                 <View style={styles.inputBox}>
@@ -114,18 +200,13 @@ export default function AddNewStudentScreen() {
                         placeholderStyle={styles.placeholderStyle}
                         selectedTextStyle={styles.selectedTextStyle}
                         iconStyle={styles.iconStyle}
-                        data={[
-                            {label: 'Grade - 10', value: 'Grade - 10'},
-                            {label: 'Grade - 11', value: 'Grade - 11'},
-                            {label: 'Grade - 12', value: 'Grade - 12'},
-                            {label: 'Grade - 13', value: 'Grade - 13'},
-                        ]}
+                        data={grades}
                         maxHeight={300}
                         labelField="label"
                         valueField="value"
                         placeholder="Select Grade"
-                        value={grade}
-                        onChange={item => setGrade(item.value)}
+                        value={selectedGrade}
+                        onChange={(item) => handleGradeSelect(item.value)}
                     />
                 </View>
             </View>
@@ -137,22 +218,17 @@ export default function AddNewStudentScreen() {
                         placeholderStyle={styles.placeholderStyle}
                         selectedTextStyle={styles.selectedTextStyle}
                         iconStyle={styles.iconStyle}
-                        data={[
-                            {label: 'Class - A', value: 'Class - A'},
-                            {label: 'Class - B', value: 'Class - B'},
-                            {label: 'Class - C', value: 'Class - C'},
-                            {label: 'Class - D', value: 'Class - D'},
-                        ]}
+                        data={classes}
                         maxHeight={300}
                         labelField="label"
                         valueField="value"
                         placeholder="Select Class"
-                        value={className}
-                        onChange={item => setClassName(item.value)}
+                        value={selectedClass}
+                        onChange={(item) => setSelectedClass(item.value)}
+                        disable={classes.length === 0}
                     />
                 </View>
             </View>
-
 
             {/* Save Button */}
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -196,9 +272,10 @@ const styles = StyleSheet.create({
 
     gradeClassRow: {flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15},
     classAndGradeBox: {flex: 1, borderRadius: 8, marginBottom: 15},
-    inputBox: {backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 5, paddingVertical: 2, shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 4,},
+    inputBox: {
+        backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 5, paddingVertical: 2,
+        shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4,
+    },
     dropdown: {height: 40, backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 8},
     placeholderStyle: {fontSize: 14, color: '#999'},
     selectedTextStyle: {fontSize: 14, color: '#000'},
@@ -216,6 +293,5 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowRadius: 4,
-
     },
 });

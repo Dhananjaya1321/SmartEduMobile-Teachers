@@ -1,15 +1,36 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator} from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    FlatList,
+    ActivityIndicator
+} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {useNavigation} from 'expo-router';
 import Animated, {SlideInDown} from 'react-native-reanimated';
+import classTimetablesAPIController from "@/controllers/ClassTimetablesController";
 
 const ScrollView = Animated.ScrollView;
 
+// Days & Period Times mapping
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const periodTimes = [
+    "08:30 A.M. - 09:05 A.M.",
+    "09:05 A.M. - 09:40 A.M.",
+    "09:40 A.M. - 10:15 A.M.",
+    "10:15 A.M. - 10:50 A.M.",
+    "11:10 A.M. - 11:45 A.M.",
+    "11:45 A.M. - 12:20 P.M.",
+    "12:20 P.M. - 12:55 P.M.",
+    "12:55 P.M. - 01:30 P.M."
+];
+
 export default function MyClassSchedule() {
     const navigation = useNavigation();
-    const [view, setView] = useState('today'); // 'today' or 'weekly'
-    const [schedule, setSchedule] = useState({});
+    const [view, setView] = useState('today');
+    const [schedule, setSchedule] = useState({today: [], weekly: {}});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [expandedDays, setExpandedDays] = useState(new Set());
@@ -18,39 +39,41 @@ export default function MyClassSchedule() {
         const fetchScheduleData = async () => {
             try {
                 setLoading(true);
-                // Replace with actual API call
-                // const response = await fetch('your-backend-api/schedule');
-                // const data = await response.json();
-                const sampleData = {
-                    today: [
-                        {day: 'Tuesday', time: '08:30 A.M. - 09:05 A.M.', gradeClass: 'Grade 10 - A'},
-                        {day: 'Tuesday', time: '09:05 A.M. - 09:40 A.M.', gradeClass: 'Grade 10 - A'},
-                        {day: 'Tuesday', time: '09:40 A.M. - 10:15 A.M.', gradeClass: 'Grade 9 - E'},
-                        {day: 'Tuesday', time: '10:15 A.M. - 10:50 A.M.', gradeClass: 'Grade 8 - C'},
-                        {day: 'Tuesday', time: '10:50 A.M. - 11:10 A.M.', gradeClass: 'Interval'},
-                        {day: 'Tuesday', time: '11:10 A.M. - 11:45 A.M.', gradeClass: 'Grade 7 - B'},
-                        {day: 'Tuesday', time: '11:45 A.M. - 12:20 P.M.', gradeClass: 'Grade 7 - B'},
-                        {day: 'Tuesday', time: '12:20 P.M. - 12:55 P.M.', gradeClass: '-'},
-                        {day: 'Tuesday', time: '12:55 P.M. - 01:30 P.M.', gradeClass: 'Grade 10 - E'},
-                    ],
-                    weekly: {
-                        Monday: [],
-                        Tuesday: [
-                            {time: '08:30 A.M. - 09:05 A.M.', gradeClass: 'Grade 10 - A'},
-                            {time: '09:05 A.M. - 09:40 A.M.', gradeClass: 'Grade 10 - A'},
-                            {time: '09:40 A.M. - 10:15 A.M.', gradeClass: 'Grade 9 - E'},
-                            {time: '10:15 A.M. - 10:50 A.M.', gradeClass: 'Grade 8 - C'},
-                            {time: '10:50 A.M. - 11:10 A.M.', gradeClass: 'Interval'},
-                            {time: '11:10 A.M. - 11:45 A.M.', gradeClass: 'Grade 7 - B'},
-                            {time: '11:45 A.M. - 12:20 P.M.', gradeClass: 'Grade 7 - B'},
-                        ],
-                        Wednesday: [],
-                        Thursday: [],
-                        Friday: [],
-                    }
-                };
-                setSchedule(sampleData);
+                const response = await classTimetablesAPIController.findMyClassesTimetableToTeacher();
+
+                const weekly: Record<string, any[]> = {};
+                days.forEach(day => {
+                    weekly[day] = [];
+                });
+
+                // Build full schedule with placeholders
+                days.forEach((day, dayIndex) => {
+                    periodTimes.forEach((time, periodIndex) => {
+                        if (time.includes("Interval")) {
+                            weekly[day].push({time, gradeClass: "Interval"});
+                        } else {
+                            const slot = response.timetablePeriods?.[periodIndex]?.slots?.[dayIndex] || null;
+                            if (slot) {
+                                weekly[day].push({
+                                    time,
+                                    gradeClass: `${slot.subject || "Unknown"} ${slot.classId ? "- " + slot.classId : ""}`
+                                });
+                            } else {
+                                weekly[day].push({time, gradeClass: " - "});
+                            }
+                        }
+                    });
+                });
+
+                // Build today's schedule
+                const jsDay = new Date().getDay(); // Sunday=0, Monday=1
+                const todayIndex = jsDay - 1; // Monday=0 … Friday=4
+                const todayName = days[todayIndex] || "Monday";
+                const today = weekly[todayName];
+
+                setSchedule({today, weekly});
             } catch (err) {
+                console.error(err);
                 setError('Failed to load schedule data.');
             } finally {
                 setLoading(false);
@@ -59,13 +82,10 @@ export default function MyClassSchedule() {
         fetchScheduleData();
     }, []);
 
-    const toggleDay = (day) => {
+    const toggleDay = (day: string) => {
         const newExpandedDays = new Set(expandedDays);
-        if (newExpandedDays.has(day)) {
-            newExpandedDays.delete(day);
-        } else {
-            newExpandedDays.add(day);
-        }
+        if (newExpandedDays.has(day)) newExpandedDays.delete(day);
+        else newExpandedDays.add(day);
         setExpandedDays(newExpandedDays);
     };
 
@@ -108,9 +128,8 @@ export default function MyClassSchedule() {
             {view === 'today' && (
                 <View entering={SlideInDown}>
                     <View style={styles.scheduleItem}>
-                        <Text style={styles.scheduleDay}>{schedule.today.day}</Text>
-                        {schedule.today && schedule.today.map((item, index) => (
-                            <View style={styles.scheduleTable}>
+                        {schedule.today.map((item, index) => (
+                            <View key={index} style={{display:"flex",justifyContent:"space-between",flexDirection:"row", paddingVertical: 5}}>
                                 <Text style={styles.scheduleTime}>{item.time}</Text>
                                 <Text style={styles.scheduleGrade}>{item.gradeClass}</Text>
                             </View>
@@ -131,7 +150,7 @@ export default function MyClassSchedule() {
                                     color="#333"
                                 />
                             </TouchableOpacity>
-                            {expandedDays.has(day) && schedule.weekly[day].length > 0 && (
+                            {expandedDays.has(day) && (
                                 <FlatList
                                     data={schedule.weekly[day]}
                                     keyExtractor={(item, index) => index.toString()}
@@ -172,8 +191,9 @@ const styles = StyleSheet.create({
     },
     scheduleDay: {fontSize: 16, fontWeight: 'bold', marginBottom: 5},
     scheduleTable: {flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5},
-    scheduleTime: {fontSize: 14, color: '#444'},
-    scheduleGrade: {fontSize: 14, color: '#444'},
+    scheduleTime: { fontSize: 14, color: '#444', width:150 },
+    scheduleGrade: {fontSize: 14, color: '#444', width:150 },
     dayHeader: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'},
     errorText: {textAlign: 'center', fontSize: 16, color: 'red', marginTop: 20},
+    noScheduleText: {textAlign: 'center', fontSize: 14, color: '#666', marginTop: 5}
 });

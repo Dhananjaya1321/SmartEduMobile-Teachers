@@ -1,56 +1,108 @@
-import React, { useState, useEffect } from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput, Animated} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React, {useState, useEffect} from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    FlatList,
+    TouchableOpacity,
+    ActivityIndicator,
+    TextInput,
+    Animated,
+} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
 import {useLocalSearchParams, useRouter} from 'expo-router';
-import ScrollView = Animated.ScrollView;
+import {Dropdown} from "react-native-element-dropdown";
+import examAPIController from "@/controllers/ExamController";
+import studentAPIController from "@/controllers/StudentController";
+
+const ScrollView = Animated.ScrollView;
 
 export default function StudentsReportScreen() {
     const router = useRouter();
-    const { grade, class: className, subject, year } = useLocalSearchParams();
+    const {subjects, gradeId, grade, classId, className, year} = useLocalSearchParams();
+    const [students, setStudents] = useState<any[]>([]);
     const [totalStudents, setTotalStudents] = useState(0);
-    const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
+    const [exam, setExam] = useState<any>(null);
+    const [subjectList, setSubjectList] = useState<{ label: string; value: string }[]>([]);
+    const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
 
-    // Fetch data from backend
+    function getSubjects(subjects: string | string[]): { label: string; value: string }[] {
+        if (!subjects || typeof subjects !== "string" || subjects.trim() === "") {
+            return [];
+        }
+        return subjects.split(",").map(s => {
+            const subject = s.trim();
+            return {label: subject, value: subject};
+        });
+    }
+
+    const handleSubjectSelect = (subject: string) => {
+        setSelectedSubject(subject);
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                // Replace with your actual API endpoint
-                // const response = await fetch(`your-backend-api-endpoint?grade=${grade}&class=${className}&subject=${subject}`);
-                // const data = await response.json();
-                // setTotalStudents(data.totalStudents);
-                // setStudents(data.students || []);
-                setTotalStudents(40);
-                setStudents([
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                    { name: 'Student Name', index: '5050', marks: '' },
-                ]);
-            } catch (err) {
-                setError('Failed to load data. Please try again.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, [grade, className, subject]);
+        setSubjectList(getSubjects(subjects));
+        checkExamResults();
+    }, [grade, className, subjects]);
 
-    const handleMarksChange = (text, index) => {
+    const checkExamResults = async () => {
+        try {
+            const response = await examAPIController.checkExamResults(gradeId, year,classId);
+            if (response === null) {
+                // no exam yet
+            } else {
+                setExam(response);
+                const studentsResponse = await studentAPIController.findClassAllStudentsByClassId(classId);
+                const studentsWithMarks = studentsResponse.map((s: any) => ({
+                    ...s,
+                    marks: ""   // initialize marks empty
+                }));
+                setTotalStudents(studentsWithMarks.length);
+                setStudents(studentsWithMarks);
+            }
+        } catch (err) {
+            setError("Failed to load exam results");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleReleaseMarks = async () => {
+        if (!exam || !selectedSubject) {
+            alert("Please select subject and ensure exam exists");
+            return;
+        }
+
+        const payload = {
+            examId: exam.id,
+            examName: exam.examName,
+            subject: selectedSubject,
+            year: year,
+            gradeId: gradeId,
+            classId: classId,
+            students: students.map(s => ({
+                studentId: s.id,
+                studentName: s.fullNameWithInitials,
+                marks: s.marks,
+            }))
+        };
+
+        try {
+            const response = await examAPIController.releaseMarks(payload);
+            if (response) {
+                alert("Marks released successfully!");
+                router.back();
+            } else {
+                alert("Failed to release marks");
+            }
+        } catch (e) {
+            alert("Error releasing marks");
+        }
+    };
+
+    const handleMarksChange = (text: string, index: number) => {
         const updatedStudents = [...students];
         updatedStudents[index].marks = text;
         setStudents(updatedStudents);
@@ -59,7 +111,7 @@ export default function StudentsReportScreen() {
     if (loading) {
         return (
             <View style={styles.container}>
-                <ActivityIndicator size="large" color="#0000ff" />
+                <ActivityIndicator size="large" color="#0000ff"/>
             </View>
         );
     }
@@ -76,10 +128,10 @@ export default function StudentsReportScreen() {
         <ScrollView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="black" />
+                    <Ionicons name="arrow-back" size={24} color="black"/>
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Students Report</Text>
-                <Ionicons name="notifications-outline" size={24} color="black" />
+                <Ionicons name="notifications-outline" size={24} color="black"/>
             </View>
 
             <View style={styles.infoRow}>
@@ -106,17 +158,25 @@ export default function StudentsReportScreen() {
                 </View>
                 <View style={styles.infoBox}>
                     <Text style={styles.infoLabel}>Subject</Text>
-                    <View style={styles.infoValueBox}>
-                        <Text style={styles.infoValue}>{subject}</Text>
+                    <View style={styles.inputBox}>
+                        <Dropdown
+                            style={styles.dropdown}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            iconStyle={styles.iconStyle}
+                            data={subjectList}
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            value={selectedSubject}
+                            onChange={(item) => handleSubjectSelect(item.value)}
+                        />
                     </View>
                 </View>
             </View>
 
-
             <View style={styles.totalClassesView}>
-                <Text style={styles.totalStudentsText}>
-                    The total number of students
-                </Text>
+                <Text style={styles.totalStudentsText}>The total number of students</Text>
                 <Text style={styles.totalStudents}>{totalStudents}</Text>
             </View>
 
@@ -125,11 +185,11 @@ export default function StudentsReportScreen() {
             <FlatList
                 data={students}
                 keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item, index }) => (
+                renderItem={({item, index}) => (
                     <View style={styles.studentItem}>
-                        <View style={styles.studentInfo}>
-                            <Text style={styles.studentName}>{item.name}</Text>
-                            <Text style={styles.studentIndex}>Index number - {item.index}</Text>
+                        <View>
+                            <Text style={styles.studentName}>{item.fullNameWithInitials}</Text>
+                            <Text style={styles.studentNo}>{item.registrationNumber}</Text>
                         </View>
                         <TextInput
                             style={styles.studentMarksInput}
@@ -143,7 +203,7 @@ export default function StudentsReportScreen() {
                 )}
             />
 
-            <TouchableOpacity style={styles.releaseButton}>
+            <TouchableOpacity style={styles.releaseButton} onPress={handleReleaseMarks}>
                 <Text style={styles.releaseButtonText}>Release Marks</Text>
             </TouchableOpacity>
         </ScrollView>
@@ -151,17 +211,17 @@ export default function StudentsReportScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50 },
-    headerTitle: { fontSize: 18, fontWeight: '600' },
-    infoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-    infoBox: { flex: 1, marginHorizontal: 5 },
-    infoLabel: { fontSize: 14, color: '#555', marginBottom: 5 },
-    infoValueBox: { backgroundColor: '#E0E0E0', borderRadius: 5, padding: 10 },
-    infoValue: { fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
-    totalStudentsText: { fontSize: 14, color: '#777', marginBottom: 5 },
-    totalStudents: { fontSize: 16, fontWeight: 'bold',},
-    clickText: { fontSize: 12, color: '#777', marginBottom: 15 },
+    container: {flex: 1, backgroundColor: '#F6F9FC', paddingTop: 50, paddingHorizontal: 20},
+    header: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50},
+    headerTitle: {fontSize: 18, fontWeight: '600'},
+    infoRow: {flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20},
+    infoBox: {flex: 1, marginHorizontal: 5},
+    infoLabel: {fontSize: 14, color: '#555', marginBottom: 5},
+    infoValueBox: {backgroundColor: '#E0E0E0', borderRadius: 5, padding: 10},
+    infoValue: {fontSize: 16, fontWeight: 'bold', textAlign: 'center'},
+    totalStudentsText: {fontSize: 14, color: '#777', marginBottom: 5},
+    totalStudents: {fontSize: 16, fontWeight: 'bold'},
+    clickText: {fontSize: 12, color: '#777', marginBottom: 15},
     studentItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -174,9 +234,8 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
-    studentInfo: { flex: 1 },
-    studentName: { fontSize: 14 },
-    studentIndex: { fontSize: 12, color: '#777' },
+    studentName: {fontSize: 14},
+    studentNo: {marginTop: 1, fontSize: 10, color: '#444'},
     studentMarksInput: {
         width: 60,
         height: 40,
@@ -187,8 +246,26 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: 'bold',
     },
-    releaseButton: { backgroundColor: '#4682B4', padding: 15, borderRadius: 5, alignItems: 'center', marginTop: 20 },
-    releaseButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-    errorText: { textAlign: 'center', fontSize: 16, color: 'red' },
-    totalClassesView: { display:"flex", flexDirection:"row", justifyContent:"space-between", marginBottom:10, alignItems:"center" },
+    releaseButton: {backgroundColor: '#4682B4', padding: 15, borderRadius: 5, alignItems: 'center', marginTop: 20},
+    releaseButtonText: {color: '#fff', fontSize: 16, fontWeight: 'bold'},
+    errorText: {textAlign: 'center', fontSize: 16, color: 'red'},
+    totalClassesView: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 10,
+        alignItems: "center"
+    },
+    inputBox: {
+        backgroundColor: '#fff',
+        padding: 12,
+        borderRadius: 8,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4
+    },
+    dropdown: {backgroundColor: 'transparent'},
+    placeholderStyle: {fontSize: 16, color: '#888'},
+    selectedTextStyle: {fontSize: 16, color: '#333'},
+    iconStyle: {width: 20, height: 20},
 });

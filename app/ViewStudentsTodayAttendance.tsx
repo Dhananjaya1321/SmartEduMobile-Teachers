@@ -6,6 +6,9 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Animated from 'react-native-reanimated';
 import {Dropdown} from "react-native-element-dropdown";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
+import attendanceAPIController from "@/controllers/AttendanceController";
+import gradeAPIController from "@/controllers/GradesController";
+import studentAPIController from "@/controllers/StudentController";
 
 const ScrollView = Animated.ScrollView;
 
@@ -17,51 +20,79 @@ export default function ViewStudentsTodayAttendance() {
     const router = useRouter();
     const [grade, setGrade] = useState('Grade - 10');
     const [className, setClassName] = useState('Class - A');
-    const [date, setDate] = useState(new Date('2021-02-02'));
+    const [date, setDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [students, setStudents] = useState([]);
     const [summary, setSummary] = useState({totalStudents: 0, presentStudents: 0, absentStudents: 0});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [grades, setGrades] = useState<any[]>([]);
+    const [classes, setClasses] = useState<any[]>([]);
+    const [selectedGrade, setSelectedGrade] = useState<string | null>(null);
+    const [selectedClass, setSelectedClass] = useState<string | null>(null);
+
+    const fetchGradesAndClasses = async () => {
+        try {
+            const response = await gradeAPIController.getAllGrades();
+            const gradeOptions = response.data.map((g: any) => ({
+                label: `Grade ${g.gradeName}`,
+                value: g.id,
+                classRooms: g.classRooms ?? [],
+            }));
+            setGrades(gradeOptions);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error loading grades:', error);
+        }
+    };
+
+    const handleGradeSelect = (gradeId: string) => {
+        setSelectedGrade(gradeId);
+        const selected = grades.find((g) => g.value === gradeId);
+        if (selected && selected.classRooms.length > 0) {
+            const classOptions = selected.classRooms.map((c: any) => ({
+                label: c.className,
+                value: c.id,
+            }));
+            setClasses(classOptions);
+        } else {
+            setClasses([]);
+        }
+        setSelectedClass(null); // Reset class when grade changes
+    };
 
     useEffect(() => {
-        const fetchAttendanceData = async () => {
-            try {
-                setLoading(true);
-                // Replace with actual API call
-                // const response = await fetch(`your-backend-api/attendance?grade=${grade}&class=${className}&date=${date.toISOString().split('T')[0]}`);
-                // const data = await response.json();
-                const sampleData = {
-                    totalStudents: 40,
-                    presentStudents: 32,
-                    absentStudents: 8,
-                    students: [
-                        {id: 1, name: 'Student Name', status: 'Present', photo: placeholderImage},
-                        {id: 2, name: 'Student Name', status: 'Present', photo: placeholderImage},
-                        {id: 3, name: 'Student Name', status: 'Absent', photo: placeholderImage},
-                        {id: 4, name: 'Student Name', status: 'Present', photo: placeholderImage},
-                        {id: 5, name: 'Student Name', status: 'Present', photo: placeholderImage},
-                        {id: 6, name: 'Student Name', status: 'Absent', photo: placeholderImage},
-                        {id: 7, name: 'Student Name', status: 'Present', photo: placeholderImage},
-                        {id: 8, name: 'Student Name', status: 'Present', photo: placeholderImage},
-                        {id: 9, name: 'Student Name', status: 'Absent', photo: placeholderImage},
-                        {id: 10, name: 'Student Name', status: 'Absent', photo: placeholderImage},
-                    ]
-                };
-                setSummary({
-                    totalStudents: sampleData.totalStudents,
-                    presentStudents: sampleData.presentStudents,
-                    absentStudents: sampleData.absentStudents
-                });
-                setStudents(sampleData.students);
-            } catch (err) {
-                setError('Failed to load attendance data.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchAttendanceData();
-    }, [grade, className, date]);
+        fetchGradesAndClasses();
+        const currentDate = new Date();
+        setDate(currentDate);
+    }, []);
+
+    const handleSelectClass = (classId: string) => {
+        setSelectedClass(classId)
+        fetchStudents(classId)
+    };
+
+    const fetchStudents = async (classId: string) => {
+        try {
+            setLoading(true);
+            const response = await attendanceAPIController.getAllAttendanceByClassId(classId);
+
+            const presentCount = response.data.filter((s: any) => s.status === "PRESENT").length;
+            const absentCount = response.data.filter((s: any) => s.status === "ABSENT").length;
+
+            setSummary({
+                totalStudents: response.data.length,
+                presentStudents: presentCount,
+                absentStudents: absentCount,
+            });
+
+            setStudents(response.data);
+        } catch (err) {
+            setError('Failed to load students.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const onDateChange = (event, selectedDate) => {
         setShowDatePicker(false);
@@ -105,17 +136,12 @@ export default function ViewStudentsTodayAttendance() {
                             placeholderStyle={styles.placeholderStyle}
                             selectedTextStyle={styles.selectedTextStyle}
                             iconStyle={styles.iconStyle}
-                            data={[
-                                {label: 'Grade - 10', value: 'Grade - 10'},
-                                {label: 'Grade - 11', value: 'Grade - 11'},
-                                {label: 'Grade - 12', value: 'Grade - 12'},
-                                {label: 'Grade - 13', value: 'Grade - 13'},
-                            ]}
+                            data={grades}
                             maxHeight={300}
                             labelField="label"
                             valueField="value"
-                            value={grade}
-                            onChange={item => setGrade(item.value)}
+                            value={selectedGrade}
+                            onChange={(item) => handleGradeSelect(item.value)}
                         />
                     </View>
                 </View>
@@ -127,17 +153,13 @@ export default function ViewStudentsTodayAttendance() {
                             placeholderStyle={styles.placeholderStyle}
                             selectedTextStyle={styles.selectedTextStyle}
                             iconStyle={styles.iconStyle}
-                            data={[
-                                {label: 'Class - A', value: 'Class - A'},
-                                {label: 'Class - B', value: 'Class - B'},
-                                {label: 'Class - C', value: 'Class - C'},
-                                {label: 'Class - D', value: 'Class - D'},
-                            ]}
+                            data={classes}
                             maxHeight={300}
                             labelField="label"
                             valueField="value"
-                            value={className}
-                            onChange={item => setClassName(item.value)}
+                            value={selectedClass}
+                            onChange={(item) => handleSelectClass(item.value)}
+                            disable={classes.length === 0}
                         />
                     </View>
                 </View>
@@ -159,25 +181,20 @@ export default function ViewStudentsTodayAttendance() {
                 />
             )}
 
-            {/* Search Button */}
-            <TouchableOpacity style={styles.searchButton} onPress={() => {
-            }}>
-                <Text style={styles.searchButtonText}>Search</Text>
-            </TouchableOpacity>
 
             {/* Summary */}
             <View style={styles.summaryContainer}>
                 <Text style={styles.summaryTitle}>Today's Attendance Summary</Text>
-                <View style={styles.flex}>
-                    <Text>The total number of students in this class in this grade </Text>
+                <View style={styles.summeryBoxFlex}>
+                    <Text>The total students </Text>
                     <Text>{summary.totalStudents}</Text>
                 </View>
-                <View style={styles.flex}>
-                    <Text>The total number of students in this class today </Text>
+                <View style={styles.summeryBoxFlex}>
+                    <Text>The total students today </Text>
                     <Text>{summary.presentStudents}</Text>
                 </View>
-                <View style={styles.flex}>
-                    <Text>Total number of students absent from this class today </Text>
+                <View style={styles.summeryBoxFlex}>
+                    <Text>Total absent today </Text>
                     <Text>{summary.absentStudents}</Text>
                 </View>
 
@@ -189,14 +206,14 @@ export default function ViewStudentsTodayAttendance() {
                 <Text style={styles.studentListTitle}>Today's Attendance Students</Text>
                 <FlatList
                     data={students}
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item) => item.studentId.toString()}
                     renderItem={({item}) => (
                         <View
-                            style={[styles.studentItem, item.status === 'Absent' ? styles.absentBg : styles.presentBg]}>
-                            <Image source={item.photo} style={styles.studentPhoto}/>
-                            <Text style={styles.studentName}>{item.name}</Text>
+                            style={[styles.studentItem, item.status === 'ABSENT' ? styles.absentBg : styles.presentBg]}>
+                            <Image source={placeholderImage} style={styles.studentPhoto}/>
+                            <Text style={styles.studentName}>{item.studentName}</Text>
                             <Text
-                                style={[styles.statusText, item.status === 'Absent' ? styles.absentText : styles.presentText]}>
+                                style={[styles.statusText, item.status === 'ABSENT' ? styles.absentText : styles.presentText]}>
                                 {item.status}
                             </Text>
                         </View>
@@ -271,6 +288,7 @@ const styles = StyleSheet.create({
     classBox: {flex: 1},
     errorText: {textAlign: 'center', fontSize: 16, color: 'red', marginTop: 20},
     flex:{gap:5, display:"flex",flexDirection:"row", justifyContent:"space-around", marginBottom:10},
+    summeryBoxFlex:{gap:5, display:"flex",flexDirection:"row", justifyContent:"space-between", marginBottom:10},
     dateBox: {
         display:"flex",
         backgroundColor: '#fff',

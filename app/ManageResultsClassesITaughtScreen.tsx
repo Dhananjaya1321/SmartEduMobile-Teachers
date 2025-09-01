@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Animated} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import ScrollView = Animated.ScrollView;
+import gradeAPIController from "@/controllers/GradesController";
+
+const ScrollView = Animated.ScrollView;
 
 export default function ManageResultsClassesITaughtScreen() {
     const router = useRouter();
@@ -10,30 +12,30 @@ export default function ManageResultsClassesITaughtScreen() {
     const [classes, setClasses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [year, setYear] = useState(new Date().getFullYear());
 
     // Fetch data from backend
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                // Replace with your actual API endpoint
-                // const response = await fetch('your-backend-api-endpoint');
-                // const data = await response.json();
-                // setTotalClasses(data.totalClasses);
-                // setClasses(data.classes);
-                setTotalClasses(11);
-                setClasses([
-                    { grade: '10', class: 'A', subject: 'Science' },
-                    { grade: '10', class: 'B', subject: 'Science' },
-                    { grade: '10', class: 'C', subject: 'Science' },
-                    { grade: '11', class: 'A', subject: 'Science' },
-                    { grade: '11', class: 'D', subject: 'Science' },
-                    { grade: '12', class: 'A', subject: 'Bio Art' },
-                    { grade: '12', class: 'E', subject: 'Bio Art' },
-                    { grade: '13', class: 'F', subject: 'Bio' },
-                ]);
-            } catch (err) {
+                const response = await gradeAPIController.getAllGradesITeach();
+                console.log("API response:", response);
 
+                // Flatten all grades -> all classes
+                const allClasses = response.data.flatMap((grade) =>
+                    grade.classRooms.map((cls) => ({
+                        ...cls,
+                        gradeId: grade.id,
+                        gradeName: grade.gradeName,
+                    }))
+                );
+
+                setTotalClasses(allClasses.length);
+                setClasses(allClasses);
+            } catch (err) {
+                setError("Failed to fetch classes");
+                console.error(err);
             } finally {
                 setLoading(false);
             }
@@ -44,7 +46,14 @@ export default function ManageResultsClassesITaughtScreen() {
     const handleClassPress = (item) => {
         router.push({
             pathname: '/StudentsMarksEntryScreen',
-            params: { grade: item.grade, class: item.class, subject: item.subject, year: '2021' },
+            params: {
+                subjects: item.classTeacherSubject,
+                gradeId: item.gradeId,
+                grade: item.gradeName,
+                classId: item.id,
+                className: item.className,
+                year: year
+            },
         });
     };
 
@@ -76,7 +85,7 @@ export default function ManageResultsClassesITaughtScreen() {
 
             <Text style={styles.yearText}>Year</Text>
             <View style={styles.yearBox}>
-                <Text style={styles.year}>2021</Text>
+                <Text style={styles.year}>{year}</Text>
             </View>
 
             <View style={styles.totalClassesView}>
@@ -84,19 +93,24 @@ export default function ManageResultsClassesITaughtScreen() {
                 <Text style={styles.totalClasses}>{totalClasses}</Text>
             </View>
 
-
             <Text style={styles.clickText}>Click on the class to add homework.</Text>
 
             <FlatList
                 data={classes}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.classItem}
                         onPress={() => handleClassPress(item)}
                     >
-                        <Text style={styles.gradeText}>Grade {item.grade}-{item.class}</Text>
-                        <Text style={styles.subjectText}>{item.subject}</Text>
+                        <Text style={styles.gradeText}>
+                            Grade {item.gradeName} - {item.className}
+                        </Text>
+                        <Text style={styles.subjectText}>
+                            {item.classTeacherSubject && item.classTeacherSubject.length > 20
+                                ? item.classTeacherSubject.substring(0, 20) + "..."
+                                : item.classTeacherSubject}
+                        </Text>
                     </TouchableOpacity>
                 )}
             />
@@ -126,9 +140,8 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
-    totalClassesView: { display:"flex", flexDirection:"row", justifyContent:"space-between", marginBottom:10, alignItems:"center" },
+    totalClassesView: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10, alignItems: "center" },
     gradeText: { fontSize: 14 },
-    classText: { fontSize: 14 },
     subjectText: { fontSize: 14 },
     errorText: { textAlign: 'center', fontSize: 16, color: 'red' },
 });

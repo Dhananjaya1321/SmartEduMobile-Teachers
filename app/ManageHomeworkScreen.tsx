@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, ScrollView} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import gradeAPIController from "@/controllers/GradesController";
 
 export default function ManageHomeworkScreen() {
     const router = useRouter();
@@ -9,6 +10,7 @@ export default function ManageHomeworkScreen() {
     const [classes, setClasses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [year, setYear] = useState(new Date().getFullYear());
 
     // Fetch data from backend
     useEffect(() => {
@@ -16,23 +18,12 @@ export default function ManageHomeworkScreen() {
             try {
                 setLoading(true);
                 // Replace with your actual API endpoint
-                // const response = await fetch('your-backend-api-endpoint');
-                // const data = await response.json();
-                // setTotalClasses(data.totalClasses);
-                // setClasses(data.classes);
-                setTotalClasses(11);
-                setClasses([
-                    { grade: '10', class: 'A', subject: 'Science' },
-                    { grade: '10', class: 'B', subject: 'Science' },
-                    { grade: '10', class: 'C', subject: 'Science' },
-                    { grade: '11', class: 'A', subject: 'Science' },
-                    { grade: '11', class: 'D', subject: 'Science' },
-                    { grade: '12', class: 'A', subject: 'Bio Art' },
-                    { grade: '12', class: 'E', subject: 'Bio Art' },
-                    { grade: '13', class: 'F', subject: 'Bio' },
-                ]);
+                const response = await gradeAPIController.getAllGradesITeach();
+
+                setTotalClasses(response.data.length);
+                setClasses(response.data);
             } catch (err) {
-                setError('Failed to load data. Please try again.');
+
             } finally {
                 setLoading(false);
             }
@@ -43,7 +34,7 @@ export default function ManageHomeworkScreen() {
     const handleClassPress = (item) => {
         router.push({
             pathname: '/AddHomeworkScreen',
-            params: { grade: item.grade, class: item.class, subject: item.subject, year: '2021' },
+            params: { gradeId:item.id, grade: item.gradeName, classId:item.classRooms[0].id,class: item.classRooms[0].className,subjects: item.classRooms[0].classTeacherSubject, year: year },
         });
     };
 
@@ -69,13 +60,13 @@ export default function ManageHomeworkScreen() {
                 <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Manage Homework</Text>
+                <Text style={styles.headerTitle}>Classes I Teach</Text>
                 <Ionicons name="notifications-outline" size={24} color="black" />
             </View>
 
             <Text style={styles.yearText}>Year</Text>
             <View style={styles.yearBox}>
-                <Text style={styles.year}>2021</Text>
+                <Text style={styles.year}>{year}</Text>
             </View>
 
             <View style={styles.totalClassesView}>
@@ -84,7 +75,7 @@ export default function ManageHomeworkScreen() {
             </View>
 
 
-            <Text style={styles.clickText}>Click on the class to add homework.</Text>
+            <Text style={styles.clickText}>Please click on the class to see more details.</Text>
 
             <FlatList
                 data={classes}
@@ -94,8 +85,13 @@ export default function ManageHomeworkScreen() {
                         style={styles.classItem}
                         onPress={() => handleClassPress(item)}
                     >
-                        <Text style={styles.gradeText}>Grade {item.grade}-{item.class}</Text>
-                        <Text style={styles.subjectText}>{item.subject}</Text>
+                        <Text style={styles.gradeText}>Grade {item.classRooms[0].className}</Text>
+                        <Text style={styles.subjectText}>
+                            {item.classRooms[0].classTeacherSubject.length > 12
+                                ? item.classRooms[0].classTeacherSubject.substring(0, 12) + "..."
+                                : item.classRooms[0].classTeacherSubject}
+                        </Text>
+
                     </TouchableOpacity>
                 )}
             />
