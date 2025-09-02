@@ -105,6 +105,7 @@ export default function TermExamResultsReleaseScreen() {
             <FlatList
                 data={subjects}
                 keyExtractor={(item, index) => index.toString()}
+                scrollEnabled={false}
                 renderItem={({item}) => (
                     <View style={styles.subjectItem}>
                         <Text style={styles.subjectText}>{item.subject}</Text>

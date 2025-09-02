@@ -43,6 +43,7 @@ export default function ManageTimetableScreen() {
                 keyExtractor={(item, index) => index.toString()}
                 numColumns={2}
                 columnWrapperStyle={{ justifyContent: 'space-between' }}
+                scrollEnabled={false}
                 renderItem={({ item }) => {
                     if (item.empty) {
                         return <View style={[styles.card, styles.invisibleCard]} />;

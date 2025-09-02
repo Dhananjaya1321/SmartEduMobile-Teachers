@@ -111,6 +111,7 @@ export default function OtherClassesITaughtScreen() {
             <FlatList
                 data={classes}
                 keyExtractor={(item, index) => index.toString()}
+                scrollEnabled={false}
                 renderItem={({ item: grade }) => (
                     <View>
                         <Text style={styles.gradeHeading}>Grade {grade.gradeName}</Text>

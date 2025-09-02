@@ -205,6 +205,7 @@ export default function MarkAttendanceScreen() {
             <FlatList
                 data={students}
                 keyExtractor={(item) => item.id.toString()}
+                scrollEnabled={false}
                 renderItem={({item}) => {
                     const status = attendance[item.id];
                     const isPresent = status === 'present';

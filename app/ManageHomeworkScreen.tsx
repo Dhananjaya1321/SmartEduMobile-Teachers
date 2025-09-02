@@ -80,6 +80,7 @@ export default function ManageHomeworkScreen() {
             <FlatList
                 data={classes}
                 keyExtractor={(item, index) => index.toString()}
+                scrollEnabled={false}
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.classItem}

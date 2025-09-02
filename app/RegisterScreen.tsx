@@ -160,13 +160,13 @@ export default function RegisterScreen() {
             resizeMode="cover"
         >
             <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.title}>Teacher Dashboard</Text>
+                <Text style={styles.title}>Teacher</Text>
                 <Text style={styles.subtitle}>Register a New Account</Text>
 
                 <Text style={{
                     color: "white",
                     display: "flex",
-                    alignSelf: "start",
+                    alignSelf: "flex-start",
                     marginBottom: 10,
                     fontSize: 16,
                     fontWeight: "500"
@@ -261,7 +261,7 @@ export default function RegisterScreen() {
                     style={{
                         color: "white",
                         display: "flex",
-                        alignSelf: "start",
+                        alignSelf: "flex-start",
                         marginBottom: 10,
                         fontSize: 16,
                         fontWeight: "500"
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: 'bold',
-        marginBottom: 10,
+        marginVertical: 15,
         color: '#fff',
     },
     subtitle: {

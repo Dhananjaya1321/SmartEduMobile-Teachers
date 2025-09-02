@@ -207,6 +207,7 @@ export default function ViewStudentsTodayAttendance() {
                 <FlatList
                     data={students}
                     keyExtractor={(item) => item.studentId.toString()}
+                    scrollEnabled={false}
                     renderItem={({item}) => (
                         <View
                             style={[styles.studentItem, item.status === 'ABSENT' ? styles.absentBg : styles.presentBg]}>

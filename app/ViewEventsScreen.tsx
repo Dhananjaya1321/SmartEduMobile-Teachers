@@ -77,6 +77,7 @@ export default function ViewEventsScreen() {
             <FlatList
                 data={events}
                 keyExtractor={(item, index) => index.toString()}
+                scrollEnabled={false}
                 renderItem={({ item }) => (
                     <View style={styles.eventItem}>
                         <View style={styles.gradeBox}>

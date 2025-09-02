@@ -60,14 +60,14 @@ export default function OLExamScheduleScreen() {
                     </Text>
                     <View  style={styles.examBox}>
                         {exam.exams.map((e: any, i: number) => (
-                           <View style={{marginBottom:5}}>
-                                <Text key={i} style={styles.examDate}>
+                            <View key={`${exam.examName}-${i}`} style={{ marginBottom: 5 }}>
+                                <Text style={styles.examDate}>
                                     {e.date} | ({e.time})
                                 </Text>
                                 <Text style={styles.subjectText}>
                                     {e.subject} ({e.paper})
                                 </Text>
-                           </View>
+                            </View>
                         ))}
                     </View>
                 </View>

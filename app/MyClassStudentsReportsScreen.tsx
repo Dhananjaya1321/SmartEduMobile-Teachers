@@ -182,6 +182,7 @@ export default function MyClassStudentsReportsScreen() {
             <FlatList
                 data={exams}
                 keyExtractor={(item, index) => index.toString()}
+                scrollEnabled={false}
                 renderItem={({item}) => {
                     let bgStyle = styles.disabledExam;
                     if (!item.disabled) {
