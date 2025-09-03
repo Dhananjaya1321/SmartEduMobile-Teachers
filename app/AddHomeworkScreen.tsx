@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     homeworkItem: { borderColor: '#00d0ff', borderWidth: 1, backgroundColor: '#ffffff', borderRadius: 5, marginBottom: 10, padding: 10, alignItems: 'flex-start' },
     homeworkText: { fontSize: 16, color: '#000000', marginBottom: 5 },
     yearText: { fontSize: 12, color: '#000', marginBottom: 5 }, // Adjusted size for better readability
-    image: { width: '100%', height: 850, borderRadius: 8 }, // Explicit dimensions for mobile
+    image: { width: '100%', height: 500, borderRadius: 8 }, // Explicit dimensions for mobile
     errorText: { color: 'red', fontSize: 12, textAlign: 'center' },
     modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
     modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '90%', maxWidth: 400 },

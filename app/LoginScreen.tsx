@@ -33,15 +33,13 @@ export default function LoginScreen() {
                 const currentTime = Date.now() / 1000;
 
                 if (decoded.exp < currentTime) {
-                    // Expired -> clear and redirect
                     await AsyncStorage.removeItem("token");
                     await AsyncStorage.removeItem("user");
                     router.replace("/LoginScreen");
                 } else {
-                    router.replace("/"); // Token valid -> go to dashboard
+                    router.replace("/");
                 }
             } catch (e) {
-                // Invalid token -> force logout
                 await AsyncStorage.removeItem("token");
                 await AsyncStorage.removeItem("user");
                 router.replace("/LoginScreen");
