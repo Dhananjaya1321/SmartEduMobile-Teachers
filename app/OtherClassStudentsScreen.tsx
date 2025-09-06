@@ -100,6 +100,7 @@ export default function OtherClassStudentsScreen() {
             <FlatList
                 data={students}
                 keyExtractor={(item) => item.id.toString()}
+                scrollEnabled={false}
                 renderItem={({ item }) => (
                     <TouchableOpacity onPress={() => handleStudentPress(item.id)} style={styles.studentItem}>
                         <Image source={placeholderImage} style={styles.studentPhoto} />

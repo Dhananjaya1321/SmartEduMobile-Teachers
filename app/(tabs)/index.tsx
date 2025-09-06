@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const teacherName = "Teacher’s Name";
+const teacherName = "Teacher";
 
 const features = [
     { label: 'Attendance', image: require('@/assets/images/attendance.png'), route: '/ManageAttendanceScreen' },

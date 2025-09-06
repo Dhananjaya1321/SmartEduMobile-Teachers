@@ -185,6 +185,7 @@ export default function StudentsReportScreen() {
             <FlatList
                 data={students}
                 keyExtractor={(item, index) => index.toString()}
+                scrollEnabled={false}
                 renderItem={({item, index}) => (
                     <View style={styles.studentItem}>
                         <View>

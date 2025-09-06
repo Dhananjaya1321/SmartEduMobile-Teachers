@@ -98,6 +98,7 @@ export default function ManageResultsClassesITaughtScreen() {
             <FlatList
                 data={classes}
                 keyExtractor={(item) => item.id}
+                scrollEnabled={false}
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.classItem}

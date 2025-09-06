@@ -116,9 +116,9 @@ export default function StudentsReportScreen() {
                 )}
             />
 
-            <TouchableOpacity style={styles.downloadButton}>
+         {/*   <TouchableOpacity style={styles.downloadButton}>
                 <Text style={styles.downloadButtonText}>Download Report</Text>
-            </TouchableOpacity>
+            </TouchableOpacity>*/}
         </View>
     );
 }

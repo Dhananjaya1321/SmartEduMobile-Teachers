@@ -227,6 +227,7 @@ export default function AttendanceReportOfAllStudents() {
             <FlatList
                 data={attendanceData}
                 keyExtractor={(item) => item.id.toString()}
+                scrollEnabled={false}
                 renderItem={renderStudentItem}
                 contentContainerStyle={styles.studentList}
                 ListEmptyComponent={<Text style={styles.infoText}>No students found.</Text>}

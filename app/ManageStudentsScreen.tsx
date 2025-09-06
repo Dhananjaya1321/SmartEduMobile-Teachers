@@ -43,6 +43,7 @@ export default function ManageStudentsScreen() {
                 data={formatData([...features], 2)}
                 keyExtractor={(item, index) => index.toString()}
                 numColumns={2}
+                scrollEnabled={false}
                 columnWrapperStyle={{ justifyContent: 'space-between' }}
                 renderItem={({ item }) => {
                     if (item.empty) {

@@ -33,15 +33,13 @@ export default function LoginScreen() {
                 const currentTime = Date.now() / 1000;
 
                 if (decoded.exp < currentTime) {
-                    // Expired -> clear and redirect
                     await AsyncStorage.removeItem("token");
                     await AsyncStorage.removeItem("user");
                     router.replace("/LoginScreen");
                 } else {
-                    router.replace("/"); // Token valid -> go to dashboard
+                    router.replace("/");
                 }
             } catch (e) {
-                // Invalid token -> force logout
                 await AsyncStorage.removeItem("token");
                 await AsyncStorage.removeItem("user");
                 router.replace("/LoginScreen");
@@ -79,7 +77,7 @@ export default function LoginScreen() {
             resizeMode="cover"
         >
             <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.title}>Teacher Dashboard</Text>
+                <Text style={styles.title}>Teacher</Text>
                 <Text style={styles.subtitle}>Please login to continue</Text>
 
                 <TextInput

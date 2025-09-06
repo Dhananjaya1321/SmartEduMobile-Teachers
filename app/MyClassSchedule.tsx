@@ -154,6 +154,7 @@ export default function MyClassSchedule() {
                                 <FlatList
                                     data={schedule.weekly[day]}
                                     keyExtractor={(item, index) => index.toString()}
+                                    scrollEnabled={false}
                                     renderItem={({item}) => (
                                         <View style={styles.scheduleTable}>
                                             <Text style={styles.scheduleTime}>{item.time}</Text>
